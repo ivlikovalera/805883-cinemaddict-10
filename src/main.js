@@ -264,3 +264,6 @@ const moviesMostCommented = moviesWrapper.querySelector(`.films-list--extra:last
 for (let i = 0; i < CardCount.LIST_EXTRA; i++) {
   render(moviesMostCommented, createMovieCardTemplate(), Position.BEFOREEND);
 }
+
+const siteFooterElement = document.querySelector(`.footer`);
+render(siteFooterElement, createMoviePopupTemplate, Position.BEFOREEND);
