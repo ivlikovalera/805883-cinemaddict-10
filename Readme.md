@@ -1,7 +1,7 @@
 # Личный проект «Киноман» [![Build status][travis-image]][travis-url]
 
 * Студент: [Валерия Литвиненко](https://up.htmlacademy.ru/ecmascript/10/user/805883).
-* Наставник: `Неизвестно`.
+* Наставник: [Валерия Литвиненко](https://up.htmlacademy.ru/ecmascript/10/user/805883).
 
 ---
 
