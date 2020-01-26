@@ -1,7 +1,29 @@
+import AbstractComponent from './abstract-component.js';
 import {NON_BREAKING_SPACE} from './../utils.js';
 
-export const createMoviePopupTemplate = ({id, title, rating, director, writers, actors, image, duration, country, releaseDate, genres, description, ageRating, comments}) =>
-  `<section class="film-details" ${`data-id = ${id}`}>
+export default class MoviePopup extends AbstractComponent {
+  constructor({id, title, alternativeTitle, rating, director, writers, actors, image, duration, country,
+    releaseDate, genres, description, ageRating, comments}) {
+    super();
+    this._id = id;
+    this._title = title;
+    this._alternativeTitle = alternativeTitle;
+    this._rating = rating;
+    this._director = director;
+    this._writers = writers.join(`, `);
+    this._actors = actors.join(`, `);
+    this._releaseDate = releaseDate;
+    this._country = country;
+    this._duration = duration;
+    this._genres = genres;
+    this._image = image;
+    this._description = description;
+    this._ageRating = ageRating;
+    this._comments = comments.length;
+  }
+
+  getTemplate() {
+    return `<section class="film-details" ${`data-id = ${this._id}`}>
   <form class="film-details__inner" action="" method="get">
     <div class="form-details__top-container">
       <div class="film-details__close">
@@ -9,55 +31,55 @@ export const createMoviePopupTemplate = ({id, title, rating, director, writers, 
       </div>
       <div class="film-details__info-wrap">
         <div class="film-details__poster">
-        <img class="film-details__poster-img" src="${image}" alt="${title}">
-          <p class="film-details__age">${`${ageRating}+`}</p>
+        <img class="film-details__poster-img" src="${this._image}" alt="${this._title}">
+          <p class="film-details__age">${`${this._ageRating}+`}</p>
         </div>
         <div class="film-details__info">
           <div class="film-details__info-head">
             <div class="film-details__title-wrap">
-              <h3 class="film-details__title">${title}</h3>
-              <p class="film-details__title-original">Original: ${title}</p>
+              <h3 class="film-details__title">${this._title}</h3>
+              <p class="film-details__title-original">Original: ${this._title}</p>
             </div>
 
             <div class="film-details__rating">
-              <p class="film-details__total-rating">${rating}</p>
+              <p class="film-details__total-rating">${this._rating}</p>
             </div>
           </div>
 
           <table class="film-details__table">
             <tr class="film-details__row">
               <td class="film-details__term">Director</td>
-              <td class="film-details__cell">${director}</td>
+              <td class="film-details__cell">${this._director}</td>
             </tr>
             <tr class="film-details__row">
               <td class="film-details__term">Writers</td>
-              <td class="film-details__cell">${writers.join(`, `)}</td>
+              <td class="film-details__cell">${this._writers.join(`, `)}</td>
             </tr>
             <tr class="film-details__row">
               <td class="film-details__term">Actors</td>
-              <td class="film-details__cell">${actors.join(`, `)}</td>
+              <td class="film-details__cell">${this._actors.join(`, `)}</td>
             </tr>
             <tr class="film-details__row">
               <td class="film-details__term">Release Date</td>
-              <td class="film-details__cell">${releaseDate.day} ${releaseDate.month} ${releaseDate.year}</td>
+              <td class="film-details__cell">${this._releaseDate.day} ${this._releaseDate.month} ${this._releaseDate.year}</td>
             </tr>
             <tr class="film-details__row">
               <td class="film-details__term">Runtime</td>
-              <td class="film-details__cell">${Math.floor(duration / 60) ? `${Math.floor(duration / 60)}h${NON_BREAKING_SPACE}` : ``}${duration % 60 ? `${duration % 60}m` : ``}</td>
+              <td class="film-details__cell">${Math.floor(this._duration / 60) ? `${Math.floor(this._duration / 60)}h${NON_BREAKING_SPACE}` : ``}${this._duration % 60 ? `${this._duration % 60}m` : ``}</td>
             </tr>
             <tr class="film-details__row">
               <td class="film-details__term">Country</td>
-              <td class="film-details__cell">${country}</td>
+              <td class="film-details__cell">${this._country}</td>
             </tr>
             <tr class="film-details__row">
-              <td class="film-details__term">${genres.length === 1 ? `Genre` : `Genres`}</td>
+              <td class="film-details__term">${this._genres.length === 1 ? `Genre` : `Genres`}</td>
               <td class="film-details__cell">
-              ${Array.from(genres).map((genre) => `<span class="film-details__genre">${genre}</span>`).join(``)}
+              ${Array.from(this._genres).map((genre) => `<span class="film-details__genre">${genre}</span>`).join(``)}
               </td>
             </tr>
           </table>
 
-          <p class="film-details__film-description">${description}</p>
+          <p class="film-details__film-description">${this._description}</p>
         </div>
       </div>
 
@@ -75,7 +97,7 @@ export const createMoviePopupTemplate = ({id, title, rating, director, writers, 
 
     <div class="form-details__bottom-container">
       <section class="film-details__comments-wrap">
-        <h3 class="film-details__comments-title">Comments <span class="film-details__comments-count">${comments.length}</span></h3>
+        <h3 class="film-details__comments-title">Comments <span class="film-details__comments-count">${this._comments.length}</span></h3>
 
         <div class="film-details__new-comment">
           <div for="add-emoji" class="film-details__add-emoji-label"></div>
@@ -110,3 +132,5 @@ export const createMoviePopupTemplate = ({id, title, rating, director, writers, 
     </div>
   </form>
 </section>`;
+  }
+}

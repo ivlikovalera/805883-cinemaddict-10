@@ -1,46 +1,41 @@
 import {Position, ExtraName, CardCount, KeyCode, render} from './utils.js';
-import {createMovieCardTemplate} from './components/movie-card.js';
-import {createMoviePopupTemplate} from './components/movie-popup.js';
-import {createMovieCommentsList} from './components/comments-popup.js';
-import {createShowMoreButtonTemplate} from './components/button.js';
-import {createFiltersTemplate} from './components/filters-menu.js';
-import {createSortingTemplate} from './components/sorting-menu.js';
-import {createUserRancTemplate} from './components/user-ranc-header.js';
-import {createMoviesListTemplate} from './components/movies-list.js';
-import {createMoviesListExtraTemplate} from './components/movies-list-extra.js';
-import {createStatisticFooterTemplate} from './components/statistic-footer.js';
-import {getUserRating} from './user-ranc.js';
+import MovieCard from './components/movie-card.js';
+import MoviePopup from './components/movie-popup.js';
+import CommentsPopup from './components/comments-popup.js';
+import ShowMoreButton from './components/show-more-button.js';
+import FiltersMenu from './components/filters-menu.js';
+import SortingMenu from './components/sorting-menu.js';
+import UserRanc from './components/user-ranc.js';
+import MoviesList from './components/movies-list.js';
+import MoviesListExtra from './components/movies-list-extra.js';
+import StatisticFooter from './components/statistic-footer.js';
+import {getUserRating} from './components/user-ranc.js';
 import {cards} from './mock/card-data.js';
 import {getFilter} from './mock/filter-data.js';
-import {getComments} from './mock/comments-data.js';
+
 
 const siteHeaderElement = document.querySelector(`.header`);
 const siteMainElement = document.querySelector(`.main`);
 const siteFooterElement = document.querySelector(`.footer`);
 
-const renderUserRating = () => {
-  siteHeaderElement.insertAdjacentHTML(Position.BEFOREEND, createUserRancTemplate(getUserRating()));
-};
-renderUserRating();
+render(siteHeaderElement, new UserRanc(getUserRating()).getElement());
+render(siteMainElement, new FiltersMenu(getFilter()).getElement());
+render(siteMainElement, new SortingMenu().getElement());
 
-const renderFilters = () => {
-  siteMainElement.insertAdjacentHTML(Position.BEFOREEND, createFiltersTemplate(getFilter()));
-};
-renderFilters();
 
-render(siteMainElement, createSortingTemplate(), Position.BEFOREEND);
-render(siteMainElement, createMoviesListTemplate(), Position.BEFOREEND);
+render(siteMainElement, new MoviesList(), Position.BEFOREEND);
 
 const moviesWrapper = siteMainElement.querySelector(`.films`);
 const moviesInner = siteMainElement.querySelector(`.films-list`);
 const moviesList = moviesWrapper.querySelector(`.films-list__container`);
 
 const renderComponentCard = (container, start, count, list = cards) => {
-  container.insertAdjacentHTML(Position.BEFOREEND, list
-    .slice(start, count)
-    .map(createMovieCardTemplate)
-    .join(``));
+  render(container, list.slice(start, count)
+    .map(new MovieCard().getTemplate())
+    .join(``),
+  Position.BEFOREEND);
 };
+
 
 renderComponentCard(moviesList, 0, CardCount.LIST_MAIN);
 
