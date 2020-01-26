@@ -9,7 +9,7 @@ import UserRanc from './components/user-ranc.js';
 import MoviesList from './components/movies-list.js';
 import MoviesListExtra from './components/movies-list-extra.js';
 import StatisticFooter from './components/statistic-footer.js';
-import {getUserRating} from './components/user-ranc.js';
+import {getUserRating} from './user-ranc.js';
 import {cards} from './mock/card-data.js';
 import {getFilter} from './mock/filter-data.js';
 
@@ -18,30 +18,29 @@ const siteHeaderElement = document.querySelector(`.header`);
 const siteMainElement = document.querySelector(`.main`);
 const siteFooterElement = document.querySelector(`.footer`);
 
-render(siteHeaderElement, new UserRanc(getUserRating()).getElement());
-render(siteMainElement, new FiltersMenu(getFilter()).getElement());
-render(siteMainElement, new SortingMenu().getElement());
+render(siteHeaderElement, new UserRanc(getUserRating()).getElement(), Position.BEFOREEND);
+render(siteMainElement, new FiltersMenu(getFilter()).getElement(), Position.BEFOREEND);
+render(siteMainElement, new SortingMenu().getElement(), Position.BEFOREEND);
 
 
-render(siteMainElement, new MoviesList(), Position.BEFOREEND);
+render(siteMainElement, new MoviesList().getElement(), Position.BEFOREEND);
 
 const moviesWrapper = siteMainElement.querySelector(`.films`);
 const moviesInner = siteMainElement.querySelector(`.films-list`);
 const moviesList = moviesWrapper.querySelector(`.films-list__container`);
 
 const renderComponentCard = (container, start, count, list = cards) => {
-  render(container, list.slice(start, count)
-    .map(new MovieCard().getTemplate())
-    .join(``),
-  Position.BEFOREEND);
+  list.slice(start, count).forEach((card) => {
+    render(container, new MovieCard(card).getElement(), Position.BEFOREEND);
+  });
 };
 
 
 renderComponentCard(moviesList, 0, CardCount.LIST_MAIN);
 
-render(moviesInner, createShowMoreButtonTemplate(), Position.BEFOREEND);
+render(moviesInner, new ShowMoreButton().getElement(), Position.BEFOREEND);
 
-render(moviesWrapper, createMoviesListExtraTemplate(ExtraName.TOP_RATED), Position.BEFOREEND);
+render(moviesWrapper, new MoviesListExtra(ExtraName.TOP_RATED).getElement(), Position.BEFOREEND);
 const moviesTopRated = moviesWrapper.querySelector(`.films-list--extra > .films-list__container`);
 const cardsForTopRated = cards.slice();
 const ratingAmount = cardsForTopRated.reduce((acc, {rating}) => rating + acc, 0);
@@ -50,7 +49,7 @@ if (ratingAmount > 0) {
     .sort((a, b) => b.rating - a.rating));
 }
 
-render(moviesWrapper, createMoviesListExtraTemplate(ExtraName.MOST_COMMENTED), Position.BEFOREEND);
+render(moviesWrapper, new MoviesListExtra(ExtraName.MOST_COMMENTED).getElement(), Position.BEFOREEND);
 const moviesMostCommented = moviesWrapper.querySelector(`.films-list--extra:last-child > .films-list__container`);
 const cardsForMostCommented = cards.slice();
 const commentAmount = cardsForMostCommented.reduce((acc, {comments}) => comments.length + acc, 0);
@@ -62,12 +61,12 @@ if (commentAmount > 0) {
 const renderMoviePopup = (renderEvt) => {
   const cardDataID = renderEvt.currentTarget.parentElement.dataset.id;
   const currentMovieCard = cards[cards.findIndex((it) => it.id === cardDataID)];
-  siteFooterElement.insertAdjacentHTML(Position.AFTEREND, createMoviePopupTemplate(currentMovieCard));
+  siteFooterElement.insertAdjacentHTML(Position.AFTEREND, new MoviePopup(currentMovieCard).getElement());
   const popup = document.querySelector(`.film-details`);
 
   const commentsTitle = popup.querySelector(`.film-details__comments-title`);
   currentMovieCard.comments.forEach((comment) => {
-    render(commentsTitle, createMovieCommentsList(comment), Position.AFTEREND);
+    render(commentsTitle, new CommentsPopup(comment).getElement(), Position.AFTEREND);
   });
 
   const closePopupButton = popup.querySelector(`.film-details__close-btn`);
@@ -110,4 +109,4 @@ buttonShowMore.addEventListener(`click`, () => {
   getClickableArea();
 });
 
-render(siteFooterElement, createStatisticFooterTemplate(cards.length), Position.BEFOREEND);
+render(siteFooterElement, new StatisticFooter(cards.length).getElement(), Position.BEFOREEND);
