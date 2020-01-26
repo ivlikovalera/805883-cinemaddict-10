@@ -18,7 +18,7 @@ export default class CommentsPopup extends AbstractComponent {
   <div>
     <p class="film-details__comment-text">${this._textComment}</p>
     <p class="film-details__comment-info">
-      <span class="film-details__comment-author">${this._autor}</span>
+      <span class="film-details__comment-author">${this._author}</span>
       <span class="film-details__comment-day">${this._dateOfComment}</span>
       <button class="film-details__comment-delete">Delete</button>
     </p>

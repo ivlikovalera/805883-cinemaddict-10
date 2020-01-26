@@ -1,5 +1,6 @@
 import AbstractComponent from './abstract-component.js';
-import {NON_BREAKING_SPACE} from './../utils.js';
+import {NON_BREAKING_SPACE, KeyCode} from './../utils/utils.js';
+import {unrender} from './../utils/render.js';
 
 export default class MoviePopup extends AbstractComponent {
   constructor({id, title, alternativeTitle, rating, director, writers, actors, image, duration, country,
@@ -20,6 +21,17 @@ export default class MoviePopup extends AbstractComponent {
     this._description = description;
     this._ageRating = ageRating;
     this._comments = comments.length;
+  }
+
+  setCloseHandler() {
+    const closePopupButton = this.getElement().querySelector(`.film-details__close-btn`);
+    const closePopupHandler = () => unrender(this.getElement());
+    closePopupButton.addEventListener(`click`, closePopupHandler);
+    document.addEventListener(`keydown`, (evt) => {
+      if (evt.keyCode === KeyCode.ESC_KEY) {
+        closePopupHandler();
+      }
+    });
   }
 
   getTemplate() {
@@ -53,11 +65,11 @@ export default class MoviePopup extends AbstractComponent {
             </tr>
             <tr class="film-details__row">
               <td class="film-details__term">Writers</td>
-              <td class="film-details__cell">${this._writers.join(`, `)}</td>
+              <td class="film-details__cell">${this._writers}</td>
             </tr>
             <tr class="film-details__row">
               <td class="film-details__term">Actors</td>
-              <td class="film-details__cell">${this._actors.join(`, `)}</td>
+              <td class="film-details__cell">${this._actors}</td>
             </tr>
             <tr class="film-details__row">
               <td class="film-details__term">Release Date</td>
@@ -97,7 +109,7 @@ export default class MoviePopup extends AbstractComponent {
 
     <div class="form-details__bottom-container">
       <section class="film-details__comments-wrap">
-        <h3 class="film-details__comments-title">Comments <span class="film-details__comments-count">${this._comments.length}</span></h3>
+        <h3 class="film-details__comments-title">Comments <span class="film-details__comments-count">${this._comments}</span></h3>
 
         <div class="film-details__new-comment">
           <div for="add-emoji" class="film-details__add-emoji-label"></div>

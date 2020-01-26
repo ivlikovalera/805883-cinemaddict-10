@@ -11,7 +11,7 @@ export const getComments = () => ({
   .fill(``)
   .map(() => `${CARD_TEXT[Math.floor(Math.random() * 10)]}. `)
   .join(``),
-  autor: [
+  author: [
     `Tim Macoveev`,
     `John Doe`,
     `Alex Litvinenko`,

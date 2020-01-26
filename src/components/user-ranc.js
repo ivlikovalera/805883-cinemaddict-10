@@ -1,7 +1,7 @@
 import AbstractComponent from './abstract-component.js';
 
 export default class UserRanc extends AbstractComponent {
-  constructor({userRating}) {
+  constructor(userRating) {
     super();
     this._userRating = userRating;
   }
