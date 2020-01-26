@@ -1,4 +1,4 @@
-import {CardCount, getShuffleArray} from './../utils.js';
+import {CardCount, getShuffleArray} from './../utils/utils.js';
 import {getComments} from './comments-data';
 
 export const CARD_TEXT = `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras aliquet varius magna,

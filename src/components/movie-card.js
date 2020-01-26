@@ -1,4 +1,5 @@
-import {NON_BREAKING_SPACE, MAX_NUM_OF_CHARACTERS} from './../utils.js';
+import {NON_BREAKING_SPACE, MAX_NUM_OF_CHARACTERS} from './../utils/utils.js';
+import {renderMoviePopup} from './../main.js';
 import AbstractComponent from './abstract-component.js';
 
 export default class MovieCard extends AbstractComponent {
@@ -27,7 +28,7 @@ export default class MovieCard extends AbstractComponent {
     </p>
     <img src="${this._image}" alt="${this._title}" class="film-card__poster">
     <p class="film-card__description">${this._description.length >= MAX_NUM_OF_CHARACTERS ? `${(this._description).slice(0, MAX_NUM_OF_CHARACTERS)}...` : this._description}</p>
-    <a class="film-card__comments">${this._comments.length} comments</a>
+    <a class="film-card__comments">${this._comments} comments</a>
     <button class="film-card__controls-item button film-card__controls-item--add-to-watchlist">Add to watchlist</button>
     <form class="film-card__controls">
       <button class="film-card__controls-item button film-card__controls-item--add-to-watchlist">Add to watchlist</button>
@@ -35,5 +36,16 @@ export default class MovieCard extends AbstractComponent {
       <button class="film-card__controls-item button film-card__controls-item--favorite film-card__controls-item--active">Mark as favorite</button>
     </form>
   </article>`;
+  }
+
+  setMovieClickHandler() {
+    const moviePoster = this.getElement().querySelector(`img`);
+    const movieTitle = this.getElement().querySelector(`.film-card__title`);
+    const movieComment = this.getElement().querySelector(`.film-card__comments`);
+    moviePoster.addEventListener(`click`, renderMoviePopup);
+    movieTitle.addEventListener(`click`, renderMoviePopup);
+    movieComment.addEventListener(`click`, renderMoviePopup);
+    moviePoster.style = `cursor: pointer`;
+    movieTitle.style = `cursor: pointer`;
   }
 }
