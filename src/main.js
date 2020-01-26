@@ -48,7 +48,7 @@ export const renderMoviePopup = (renderEvt) => {
 
 new PageController(moviesList).render(cards.slice(0, CardCount.LIST_MAIN));
 
-if (cards.length) {
+if (cards.length > CardCount.LIST_MAIN) {
   const showMoreButton = new ShowMoreButton();
   render(moviesInner, showMoreButton.getElement(), Position.BEFOREEND);
   showMoreButton.setShowMoreClickHandler(moviesList, cards);
