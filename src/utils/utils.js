@@ -22,6 +22,12 @@ export const CardCount = {
   LIST_ALL: 19,
 };
 
+export const SortType = {
+  DEFAULT: `default`,
+  DATE: `date`,
+  RATING: `rating`,
+};
+
 export const getShuffleArray = (values) => {
   for (let i = values.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
