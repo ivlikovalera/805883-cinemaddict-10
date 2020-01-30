@@ -1,4 +1,5 @@
 import AbstractComponent from './abstract-component.js';
+import moment from 'moment';
 
 export default class CommentsPopup extends AbstractComponent {
   constructor({emojiPic, textComment, author, dateOfComment}) {
@@ -19,7 +20,7 @@ export default class CommentsPopup extends AbstractComponent {
     <p class="film-details__comment-text">${this._textComment}</p>
     <p class="film-details__comment-info">
       <span class="film-details__comment-author">${this._author}</span>
-      <span class="film-details__comment-day">${this._dateOfComment}</span>
+      <span class="film-details__comment-day">${moment(this._dateOfComment).format(`YYYY/MM/DD hh:mm`)}</span>
       <button class="film-details__comment-delete">Delete</button>
     </p>
   </div>
