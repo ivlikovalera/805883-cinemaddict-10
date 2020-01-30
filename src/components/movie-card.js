@@ -1,10 +1,10 @@
 import {NON_BREAKING_SPACE, MAX_NUM_OF_CHARACTERS} from './../utils/utils.js';
-import {renderMoviePopup} from './../main.js';
+
 import AbstractComponent from './abstract-component.js';
 
 export default class MovieCard extends AbstractComponent {
   constructor({id, title, rating, releaseDate, duration,
-    genres, image, description, comments}) {
+    genres, image, description, comments, isWatchlist, isWatched, isFavorites}) {
     super();
     this._id = id;
     this._title = title;
@@ -15,6 +15,9 @@ export default class MovieCard extends AbstractComponent {
     this._image = image;
     this._description = description;
     this._comments = comments.length;
+    this._isWatchlist = isWatchlist;
+    this._isWatched = isWatched;
+    this._isFavorites = isFavorites;
   }
 
   getTemplate() {
@@ -31,21 +34,16 @@ export default class MovieCard extends AbstractComponent {
     <a class="film-card__comments">${this._comments} comments</a>
     <button class="film-card__controls-item button film-card__controls-item--add-to-watchlist">Add to watchlist</button>
     <form class="film-card__controls">
-      <button class="film-card__controls-item button film-card__controls-item--add-to-watchlist">Add to watchlist</button>
-      <button class="film-card__controls-item button film-card__controls-item--mark-as-watched">Mark as watched</button>
-      <button class="film-card__controls-item button film-card__controls-item--favorite film-card__controls-item--active">Mark as favorite</button>
+      <button class="film-card__controls-item button film-card__controls-item--add-to-watchlist ${this._isWatchlist ? `film-card__controls-item--active` : ``}">Add to watchlist</button>
+      <button class="film-card__controls-item button film-card__controls-item--mark-as-watched ${this._isWatched ? `film-card__controls-item--active` : ``}">Mark as watched</button>
+      <button class="film-card__controls-item button film-card__controls-item--favorite ${this._isFavorites ? `film-card__controls-item--active` : ``}">Mark as favorite</button>
     </form>
   </article>`;
   }
 
   setMovieClickHandler() {
-    const moviePoster = this.getElement().querySelector(`img`);
-    const movieTitle = this.getElement().querySelector(`.film-card__title`);
-    const movieComment = this.getElement().querySelector(`.film-card__comments`);
-    moviePoster.addEventListener(`click`, renderMoviePopup);
-    movieTitle.addEventListener(`click`, renderMoviePopup);
-    movieComment.addEventListener(`click`, renderMoviePopup);
-    moviePoster.style = `cursor: pointer`;
-    movieTitle.style = `cursor: pointer`;
+  }
+
+  setDetailsClickHandler() {
   }
 }
