@@ -1,4 +1,5 @@
 import {NON_BREAKING_SPACE, MAX_NUM_OF_CHARACTERS} from './../utils/utils.js';
+import moment from 'moment';
 
 import AbstractComponent from './abstract-component.js';
 
@@ -25,7 +26,7 @@ export default class MovieCard extends AbstractComponent {
     <h3 class="film-card__title">${this._title}</h3>
     <p class="film-card__rating">${this._rating}</p>
     <p class="film-card__info">
-      <span class="film-card__year">${this._releaseDate.year}</span>
+      <span class="film-card__year">${moment(this._releaseDate).format(`YYYY`)}</span>
       <span class="film-card__duration">${Math.floor(this._duration / 60) ? `${Math.floor(this._duration / 60)}h${NON_BREAKING_SPACE}` : ``}${this._duration % 60 ? `${this._duration % 60}m` : ``}</span>
       <span class="film-card__genre">${this._genres[0]}</span>
     </p>

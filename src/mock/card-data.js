@@ -9,9 +9,6 @@ Sed blandit, eros vel aliquam faucibus, purus ex euismod diam, eu luctus nunc an
 Sed sed nisi sed augue convallis suscipit in sed felis. Aliquam erat volutpat. Nunc
 fermentum tortor ac porta dapibus. In rutrum ac purus sit amet tempus.`.split(`.`);
 
-const MONTH_NAMES = [`January`, `February`, `March`, `April`, `May`, `June`,
-  `July`, `August`, `September`, `October`, `November`, `December`];
-
 export const GENRES_NAMES = [
   `Musical`,
   `Western`,
@@ -106,12 +103,7 @@ export const getCard = () => ({
     `Belgium`,
     `Canada`
   ][Math.floor(Math.random() * 5)],
-  releaseDate: {
-    year: Math.floor(Math.random() * (2020 - 1930) + 1930),
-    month: MONTH_NAMES[Math.floor(Math.random() * 12)],
-    day: Math.floor(Math.random() * (29 - 1) + 1),
-  },
-  // releaseDate: Date.now() - Math.floor(Math.random() * 365 * 80) * 24 * 60 * 60 * 1000,
+  releaseDate: Date.now() - Math.floor(Math.random() * 365 * 80) * 24 * 60 * 60 * 1000,
   ageRating: [
     `0`,
     `6`,
