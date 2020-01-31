@@ -1,12 +1,37 @@
-import {CardCount} from './../utils/utils.js';
+import {CardCount, SortType, StatusType} from './../utils/utils.js';
 
 export default class MoviesModel {
   setMovies(movies) {
     this._movies = movies;
+    this._currentFilter = StatusType.ALL;
+    this.refreshCard = null;
   }
 
   getMovies() {
-    return this._movies;
+    switch (this._currentFilter) {
+      case StatusType.FAVORITE:
+        return this._movies.filter((movie) => movie.isFavorites);
+      case StatusType.WATCHED:
+        return this._movies.filter((movie) => movie.isWatched);
+      case StatusType.WATCHLIST:
+        return this._movies.filter((movie) => movie.isWatchlist);
+      default:
+        return this._movies;
+    }
+  }
+
+  sortMovies(sort) {
+    switch (sort) {
+      case SortType.RATING:
+        this._movies.sort((a, b) => b.rating - a.rating);
+        break;
+      case SortType.DATE:
+        this._movies.sort((a, b) => b.releaseDate - a.releaseDate);
+        break;
+      case SortType.DEFAULT:
+        this._movies.sort((a, b) => a.id - b.id);
+    }
+    this.refreshCard();
   }
 
   changeMovie(id, data) {
@@ -33,7 +58,10 @@ export default class MoviesModel {
     return 0;
   }
 
-  getMoviesCount() {
-    return this._movies.length;
+  filterMovies(statusType) {
+    if (this._currentFilter !== statusType) {
+      this._currentFilter = statusType;
+      this.refreshCard();
+    }
   }
 }

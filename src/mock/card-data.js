@@ -126,4 +126,7 @@ export const createCards = (count) => {
 export const cards = createCards(CardCount.LIST_ALL).slice();
 cards.forEach((it, i) => {
   it.id = (i + 1).toString();
+  it.comments.forEach((comment, j) => {
+    comment.id = (j + 1).toString();
+  });
 });

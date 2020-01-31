@@ -1,5 +1,5 @@
 import AbstractSmartComponent from './abstract-smart-component.js';
-import {NON_BREAKING_SPACE, KeyCode, StatusType, EmojiValues, EmojiURL} from './../utils/utils.js';
+import {NON_BREAKING_SPACE, KeyCode, StatusType, EmojiValues, EmojiURL, ViewModes} from './../utils/utils.js';
 import {unrender} from './../utils/render.js';
 import moment from 'moment';
 
@@ -31,12 +31,17 @@ export default class MoviePopup extends AbstractSmartComponent {
     this.closePopupHandler = this.closePopupHandler.bind(this);
   }
 
-  setCloseHandler() {
+  setCloseHandler(changeMode) {
+    this._changeMode = changeMode;
     const closePopupButton = this.getElement().querySelector(`.film-details__close-btn`);
-    closePopupButton.addEventListener(`click`, this.closePopupHandler);
+    closePopupButton.addEventListener(`click`, () => {
+      this.closePopupHandler();
+      this._changeMode(ViewModes.CARD);
+    });
     document.addEventListener(`keydown`, (evt) => {
       if (evt.keyCode === KeyCode.ESC_KEY) {
         this.closePopupHandler();
+        this._changeMode(ViewModes.CARD);
       }
     });
   }
@@ -46,9 +51,42 @@ export default class MoviePopup extends AbstractSmartComponent {
   }
 
   recoveryListeners() {
-    this.setCloseHandler();
+    this.setCloseHandler(this._changeMode);
     this.setDetailsClickHandler(this._detailsClickHandler);
+    this.setDeleteCommentClickHandler(this._deleteCommentClickHandler);
     this.selectEmoji();
+  }
+
+  setDeleteCommentClickHandler(handler) {
+    this._deleteCommentClickHandler = handler;
+    this.getElement().querySelectorAll(`.film-details__comments-list`)
+      .forEach((commentElement) => {
+        commentElement.querySelector(`.film-details__comment-delete`)
+          .addEventListener(`click`, (evt) => {
+            evt.preventDefault();
+            const commentIndex = this._comments
+              .findIndex((it) => it.id === commentElement.dataset.id);
+            this._comments = this._comments
+              .slice(0, commentIndex).concat(this._comments
+               .slice(commentIndex + 1, this._comments.length));
+            handler(this._comments);
+          });
+      });
+  }
+
+  setAddCommentSubmitHandler(handler) {
+    this.getElement().querySelector(`.film-details__comment-input`)
+     .addEventListener(`keydown`, (evt) => {
+       if (evt.keyCode === KeyCode.ENTER_KEY) {
+         handler({
+           id: this._comments.length,
+           emojiPic: this._selectedEmoji,
+           textComment: evt.currentTarget.value,
+           author: `Me`,
+           dateOfComment: new Date(),
+         });
+       }
+     });
   }
 
   setDetailsClickHandler(handler) {
@@ -248,8 +286,9 @@ export default class MoviePopup extends AbstractSmartComponent {
     </section>
   </div>`;
   }
-  _getCommentTemplate({emojiPic, textComment, author, dateOfComment}) {
-    return `<ul class="film-details__comments-list">
+
+  _getCommentTemplate({id, emojiPic, textComment, author, dateOfComment}) {
+    return `<ul class="film-details__comments-list" data-id="${id}">
   <li class="film-details__comment">
   <span class="film-details__comment-emoji">
     <img src=${emojiPic} width="55" height="55" alt="emoji">
@@ -263,6 +302,6 @@ export default class MoviePopup extends AbstractSmartComponent {
     </p>
   </div>
 </li>
-</ul`;
+</ul>`;
   }
 }

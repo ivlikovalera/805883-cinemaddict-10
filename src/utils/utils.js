@@ -29,9 +29,15 @@ export const SortType = {
 };
 
 export const StatusType = {
-  FAVORITE: `FAVORITE`,
-  WATCHLIST: `WATCHLIST`,
-  WATCHED: `WATCHED`,
+  ALL: `all`,
+  FAVORITE: `favorite`,
+  WATCHLIST: `watchlist`,
+  WATCHED: `watched`,
+};
+
+export const ViewModes = {
+  CARD: `card`,
+  POPUP: `popup`,
 };
 
 export const EmojiValues = {

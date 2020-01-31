@@ -1,5 +1,5 @@
-import {Position, StatusType} from './../utils/utils.js';
-import {render} from './../utils/render.js';
+import {Position, StatusType, ViewModes} from './../utils/utils.js';
+import {render, unrender} from './../utils/render.js';
 import MoviePopup from './../components/movie-popup.js';
 import MovieCard from "./../components/movie-card.js";
 
@@ -13,8 +13,15 @@ export default class MovieController {
     this._renderPopup = this._renderPopup.bind(this);
     this._onViewChange = onViewChange;
     this._detailsClickHandler = this._detailsClickHandler.bind(this);
+    this._deleteCommentClickHandler = this._deleteCommentClickHandler.bind(this);
+    this._viewMode = ViewModes.CARD;
+    this._changeMode = this._changeMode.bind(this);
   }
 
+
+  _changeMode(mode) {
+    this._viewMode = mode;
+  }
 
   _detailsClickHandler(type) {
     const newData = this._data;
@@ -30,18 +37,53 @@ export default class MovieController {
         break;
     }
     this._onDataChange(this._data.id, newData);
+
+    this._rerenderCard(newData);
+    if (this._viewMode === ViewModes.POPUP) {
+      this._popup.rerender();
+    }
+  }
+
+  _deleteCommentClickHandler(comments) {
+    this._data.comments = comments;
+    this._onDataChange(this._data.id, this._data);
     this._popup.rerender();
+    this._rerenderCard(this._data);
+  }
+
+  _addCommentClickHandler(comment) {
+    this._data.comments.push(comment);
+    this._onDataChange(this._data.id, this._data);
+    this._popup.rerender();
+    this._rerenderCard(this._data);
   }
 
   _renderPopup() {
     this._onViewChange();
+    this._viewMode = ViewModes.POPUP;
     this._popup = new MoviePopup(this._data);
     render(this._popupContainer, this._popup.getElement(), Position.BEFOREEND);
     this._popup.setDetailsClickHandler(this._detailsClickHandler);
-    this._popup.setCloseHandler();
+    this._popup.setCloseHandler(this._changeMode);
     this._popup.selectEmoji();
+    this._popup.setDeleteCommentClickHandler(this._deleteCommentClickHandler);
   }
 
+  _rerenderCard(data) {
+    const oldCard = this._card.getElement();
+    const parentElement = this._card.getElement().parentElement;
+    this._card = new MovieCard(data);
+    parentElement.replaceChild(this._card.getElement(), oldCard);
+    this._card.setMovieClickHandler(this._renderPopup);
+    this._card.setDetailsClickHandler(this._detailsClickHandler);
+  }
+
+  clear() {
+    if (this._viewMode === ViewModes.POPUP) {
+      unrender(this._popup);
+    }
+    unrender(this._card.getElement());
+  }
 
   render(movieData) {
     this._data = movieData;
@@ -53,8 +95,9 @@ export default class MovieController {
   }
 
   setDefaultView() {
-    if (this._popup !== null) {
+    if (this._viewMode === ViewModes.POPUP) {
       this._popup.closePopupHandler();
+      this._changeMode(ViewModes.CARD);
     }
   }
 }
