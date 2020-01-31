@@ -1,9 +1,9 @@
-import AbstractComponent from './abstract-component.js';
-import {NON_BREAKING_SPACE, KeyCode} from './../utils/utils.js';
+import AbstractSmartComponent from './abstract-smart-component.js';
+import {NON_BREAKING_SPACE, KeyCode, StatusType, EmojiValues, EmojiURL} from './../utils/utils.js';
 import {unrender} from './../utils/render.js';
 import moment from 'moment';
 
-export default class MoviePopup extends AbstractComponent {
+export default class MoviePopup extends AbstractSmartComponent {
   constructor({id, title, alternativeTitle, rating, director, writers, actors, image, duration, country,
     releaseDate, genres, description, ageRating, comments, isWatchlist, isWatched, isFavorites}) {
     super();
@@ -21,24 +21,77 @@ export default class MoviePopup extends AbstractComponent {
     this._image = image;
     this._description = description;
     this._ageRating = ageRating;
-    this._comments = comments.length;
+    this._comments = comments;
     this._isWatchlist = isWatchlist;
     this._isWatched = isWatched;
     this._isFavorites = isFavorites;
+    this._selectedEmoji = null;
+    this.recoveryListeners = this.recoveryListeners.bind(this);
+    this.setDetailsClickHandler = this.setDetailsClickHandler.bind(this);
+    this.closePopupHandler = this.closePopupHandler.bind(this);
   }
 
   setCloseHandler() {
     const closePopupButton = this.getElement().querySelector(`.film-details__close-btn`);
-    const closePopupHandler = () => unrender(this.getElement());
-    closePopupButton.addEventListener(`click`, closePopupHandler);
+    closePopupButton.addEventListener(`click`, this.closePopupHandler);
     document.addEventListener(`keydown`, (evt) => {
       if (evt.keyCode === KeyCode.ESC_KEY) {
-        closePopupHandler();
+        this.closePopupHandler();
       }
     });
   }
 
-  setDetailsClickHandler() {
+  closePopupHandler() {
+    unrender(this.getElement());
+  }
+
+  recoveryListeners() {
+    this.setCloseHandler();
+    this.setDetailsClickHandler(this._detailsClickHandler);
+    this.selectEmoji();
+  }
+
+  setDetailsClickHandler(handler) {
+    this._detailsClickHandler = handler;
+    this.getElement().querySelectorAll(`.film-details__control-label`).forEach((checkbox) => {
+      checkbox.addEventListener(`click`, (evt) => {
+        if (evt.currentTarget.classList.contains(`film-details__control-label--favorite`)) {
+          this._isFavorites = !this._isFavorites;
+          handler(StatusType.FAVORITE);
+        }
+        if (evt.currentTarget.classList.contains(`film-details__control-label--watched`)) {
+          this._isWatched = !this._isWatched;
+          handler(StatusType.WATCHED);
+        }
+        if (evt.currentTarget.classList.contains(`film-details__control-label--watchlist`)) {
+          this._isWatchlist = !this._isWatchlist;
+          handler(StatusType.WATCHLIST);
+        }
+      });
+    });
+  }
+
+  selectEmoji() {
+    this.getElement().querySelectorAll(`.film-details__emoji-item`).forEach((emojiButton) => {
+      emojiButton.addEventListener(`click`, (evt) => {
+        const emojiValue = evt.currentTarget.id;
+        switch (emojiValue) {
+          case EmojiValues.SMILE:
+            this._selectedEmoji = EmojiURL.SMILE;
+            break;
+          case EmojiValues.SLEEPING:
+            this._selectedEmoji = EmojiURL.SLEEPING;
+            break;
+          case EmojiValues.GPUKE:
+            this._selectedEmoji = EmojiURL.GPUKE;
+            break;
+          case EmojiValues.ANGRY:
+            this._selectedEmoji = EmojiURL.ANGRY;
+            break;
+        }
+        this.rerender();
+      });
+    });
   }
 
   getTemplate() {
@@ -113,13 +166,16 @@ export default class MoviePopup extends AbstractComponent {
         <label for="favorite" class="film-details__control-label film-details__control-label--favorite">Add to favorites</label>
       </section>
     </div>
-
+    ${this._isWatched ? this._getRatingTemplate() : ``}
     <div class="form-details__bottom-container">
       <section class="film-details__comments-wrap">
-        <h3 class="film-details__comments-title">Comments <span class="film-details__comments-count">${this._comments}</span></h3>
-
+        <h3 class="film-details__comments-title">Comments <span class="film-details__comments-count">${this._comments.length}</span>
+        ${this._comments.length ? this._comments.map((comment) => this._getCommentTemplate(comment)).join(``) : ``}
+        </h3>
         <div class="film-details__new-comment">
-          <div for="add-emoji" class="film-details__add-emoji-label"></div>
+          <div for="add-emoji" class="film-details__add-emoji-label">
+          ${this._selectedEmoji ? `<img src="${this._selectedEmoji}" width="55" height="55" alt="emoji">` : ``}
+          </div>
 
           <label class="film-details__comment-label">
             <textarea class="film-details__comment-input" placeholder="Select reaction below and write comment here" name="comment"></textarea>
@@ -151,5 +207,62 @@ export default class MoviePopup extends AbstractComponent {
     </div>
   </form>
 </section>`;
+  }
+
+
+  _getRatingTemplate() {
+    return `    <div class="form-details__middle-container">
+    <section class="film-details__user-rating-wrap">
+      <div class="film-details__user-rating-controls">
+        <button class="film-details__watched-reset" type="button">Undo</button>
+      </div>
+      <div class="film-details__user-score">
+        <div class="film-details__user-rating-poster">
+          <img src="./images/posters/the-great-flamarion.jpg" alt="film-poster" class="film-details__user-rating-img">
+        </div>
+        <section class="film-details__user-rating-inner">
+          <h3 class="film-details__user-rating-title">The Great Flamarion</h3>
+          <p class="film-details__user-rating-feelings">How you feel it?</p>
+          <div class="film-details__user-rating-score">
+            <input type="radio" name="score" class="film-details__user-rating-input visually-hidden" value="1" id="rating-1">
+            <label class="film-details__user-rating-label" for="rating-1">1</label>
+            <input type="radio" name="score" class="film-details__user-rating-input visually-hidden" value="2" id="rating-2">
+            <label class="film-details__user-rating-label" for="rating-2">2</label>
+            <input type="radio" name="score" class="film-details__user-rating-input visually-hidden" value="3" id="rating-3">
+            <label class="film-details__user-rating-label" for="rating-3">3</label>
+            <input type="radio" name="score" class="film-details__user-rating-input visually-hidden" value="4" id="rating-4">
+            <label class="film-details__user-rating-label" for="rating-4">4</label>
+            <input type="radio" name="score" class="film-details__user-rating-input visually-hidden" value="5" id="rating-5">
+            <label class="film-details__user-rating-label" for="rating-5">5</label>
+            <input type="radio" name="score" class="film-details__user-rating-input visually-hidden" value="6" id="rating-6">
+            <label class="film-details__user-rating-label" for="rating-6">6</label>
+            <input type="radio" name="score" class="film-details__user-rating-input visually-hidden" value="7" id="rating-7">
+            <label class="film-details__user-rating-label" for="rating-7">7</label>
+            <input type="radio" name="score" class="film-details__user-rating-input visually-hidden" value="8" id="rating-8">
+            <label class="film-details__user-rating-label" for="rating-8">8</label>
+            <input type="radio" name="score" class="film-details__user-rating-input visually-hidden" value="9" id="rating-9" checked>
+            <label class="film-details__user-rating-label" for="rating-9">9</label>
+          </div>
+        </section>
+      </div>
+    </section>
+  </div>`;
+  }
+  _getCommentTemplate({emojiPic, textComment, author, dateOfComment}) {
+    return `<ul class="film-details__comments-list">
+  <li class="film-details__comment">
+  <span class="film-details__comment-emoji">
+    <img src=${emojiPic} width="55" height="55" alt="emoji">
+  </span>
+  <div>
+    <p class="film-details__comment-text">${textComment}</p>
+    <p class="film-details__comment-info">
+      <span class="film-details__comment-author">${author}</span>
+      <span class="film-details__comment-day">${moment(dateOfComment).format(`YYYY/MM/DD hh:mm`)}</span>
+      <button class="film-details__comment-delete">Delete</button>
+    </p>
+  </div>
+</li>
+</ul`;
   }
 }

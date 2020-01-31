@@ -28,6 +28,26 @@ export const SortType = {
   RATING: `rating`,
 };
 
+export const StatusType = {
+  FAVORITE: `FAVORITE`,
+  WATCHLIST: `WATCHLIST`,
+  WATCHED: `WATCHED`,
+};
+
+export const EmojiValues = {
+  SMILE: `emoji-smile`,
+  SLEEPING: `emoji-sleeping`,
+  GPUKE: `emoji-gpuke`,
+  ANGRY: `emoji-angry`,
+};
+
+export const EmojiURL = {
+  SMILE: `./images/emoji/smile.png`,
+  SLEEPING: `./images/emoji/sleeping.png`,
+  GPUKE: `./images/emoji/puke.png`,
+  ANGRY: `./images/emoji/angry.png`,
+};
+
 export const getShuffleArray = (values) => {
   for (let i = values.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));

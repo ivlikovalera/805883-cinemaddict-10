@@ -1,4 +1,4 @@
-import {NON_BREAKING_SPACE, MAX_NUM_OF_CHARACTERS} from './../utils/utils.js';
+import {NON_BREAKING_SPACE, MAX_NUM_OF_CHARACTERS, StatusType} from './../utils/utils.js';
 import moment from 'moment';
 
 import AbstractComponent from './abstract-component.js';
@@ -42,9 +42,31 @@ export default class MovieCard extends AbstractComponent {
   </article>`;
   }
 
-  setMovieClickHandler() {
+  setMovieClickHandler(handler) {
+    const moviePoster = this.getElement().querySelector(`img`);
+    const movieTitle = this.getElement().querySelector(`.film-card__title`);
+    const movieComment = this.getElement().querySelector(`.film-card__comments`);
+    moviePoster.addEventListener(`click`, handler);
+    movieTitle.addEventListener(`click`, handler);
+    movieComment.addEventListener(`click`, handler);
+    moviePoster.style = `cursor: pointer`;
+    movieTitle.style = `cursor: pointer`;
   }
 
-  setDetailsClickHandler() {
+  setDetailsClickHandler(handler) {
+    const cardDetailsButtons = this.getElement().querySelectorAll(`.film-card__controls-item`);
+    cardDetailsButtons.forEach((button) => button.addEventListener(`click`, (evt) => {
+      evt.preventDefault();
+      if (evt.currentTarget.classList.contains(`film-card__controls-item--add-to-watchlist`)) {
+        handler(StatusType.WATCHLIST);
+      }
+      if (evt.currentTarget.classList.contains(`film-card__controls-item--mark-as-watched`)) {
+        handler(StatusType.WATCHED);
+      }
+      if (evt.currentTarget.classList.contains(`film-card__controls-item--favorite`)) {
+        handler(StatusType.FAVORITE);
+      }
+    }));
   }
 }
+

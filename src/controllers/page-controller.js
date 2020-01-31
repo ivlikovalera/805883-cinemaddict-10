@@ -1,4 +1,3 @@
-import MovieCard from "./../components/movie-card.js";
 import {render, unrender} from './../utils/render.js';
 import {Position, CardCount, ExtraName, SortType} from './../utils/utils.js';
 import SortingMenu from "./../components/sorting-menu.js";
@@ -11,7 +10,7 @@ import MovieController from "./../controllers/movie-controller.js";
 import {getFilter} from './../mock/filter-data.js';
 
 export default class PageController {
-  constructor(container) {
+  constructor(container, moviesModel) {
     this._container = container;
 
     this._filters = new FiltersMenu(getFilter()).getElement();
@@ -22,24 +21,26 @@ export default class PageController {
 
     this._sort = new SortingMenu();
     this._showMore = new ShowMoreButton();
-    this._cardsData = null;
+
+    this._moviesModel = moviesModel;
     this._changeSort = this._changeSort.bind(this);
     this._showMoreClickHandler = this._showMoreClickHandler.bind(this);
     this._onDataChange = this._onDataChange.bind(this);
+    this._movieControllersList = [];
+    this._onViewChange = this._onViewChange.bind(this);
   }
 
   _renderCards(currentCards, currentContainer) {
     currentCards.forEach((cardData) => {
-      const card = new MovieCard(cardData);
-      render(currentContainer, card.getElement(), Position.BEFOREEND);
-      card.setMovieClickHandler = this._movieClickHandler;
-      card.setMovieClickHandler(cardData);
+      const movieController = new MovieController(currentContainer, document
+        .querySelector(`.footer`), this._onDataChange, this._onViewChange);
+      movieController.render(cardData);
+      this._movieControllersList.push(movieController);
     });
   }
 
-  _onDataChange(oldCardData, newCardData) {
-    this._cardsData[this._cardsData.
-      findIndex((it) => it.id === oldCardData.id)] = newCardData;
+  _onDataChange(oldCardId, newCard) {
+    this._moviesModel.changeMovie(oldCardId, newCard);
   }
 
   _changeSort(button) {
@@ -58,12 +59,11 @@ export default class PageController {
     this._renderCards(this._cardsData.slice(0, CardCount.LIST_MAIN), this._container.querySelector(`.films-list__container`));
   }
 
-  render(cardsData) {
+  render() {
     render(this._container, this._filters, Position.BEFOREEND);
     render(this._container, this._sort.getElement(), Position.BEFOREEND);
-    this._cardsData = cardsData;
 
-    if (this._cardsData.length) {
+    if (this._moviesModel.getMoviesCount()) {
       render(this._container, this._moviesList, Position.BEFOREEND);
     } else {
       render(this._container, this._noMovieMessage, Position.BEFOREEND);
@@ -73,62 +73,48 @@ export default class PageController {
     const moviesInner = moviesWrapper.querySelector(`.films-list`);
     const moviesList = moviesWrapper.querySelector(`.films-list__container`);
 
-    this._renderCards(this._cardsData.slice(0, CardCount.LIST_MAIN), moviesList);
+    this._renderCards(this._moviesModel.getMovies().slice(0, CardCount.LIST_MAIN), moviesList);
 
-    if (this._cardsData.length > CardCount.LIST_MAIN) {
+    if (this._moviesModel.getMoviesCount() > CardCount.LIST_MAIN) {
       render(moviesInner, this._showMore.getElement(), Position.BEFOREEND);
       this._showMore.setShowMoreClickHandler = this._showMoreClickHandler;
       this._showMore.setShowMoreClickHandler(moviesList);
     }
 
-    if (this._cardsData.length) {
+    if (this._moviesModel.getMoviesCount()) {
       render(moviesWrapper, this._topRatedList, Position.BEFOREEND);
     }
 
     const moviesTopRated = moviesWrapper.querySelector(`.films-list--extra > .films-list__container`);
-    const cardsForTopRated = this._cardsData.slice().sort((a, b) => b.rating - a.rating);
-    const ratingAmount = cardsForTopRated.reduce((acc, {rating}) => rating + acc, 0);
-    if (ratingAmount > 0) {
-      this._renderCards(cardsForTopRated.slice(0, CardCount.LIST_EXTRA), moviesTopRated);
+    const cardsForTopRated = this._moviesModel.getTopRated();
+    if (cardsForTopRated !== 0) {
+      this._renderCards(cardsForTopRated, moviesTopRated);
     }
 
-    if (this._cardsData.length) {
+    if (this._moviesModel.getMoviesCount()) {
       render(moviesWrapper, this._mostCommentedList, Position.BEFOREEND);
     }
     const moviesMostCommented = moviesWrapper.querySelector(`.films-list--extra:last-child > .films-list__container`);
-    const cardsForMostCommented = this._cardsData.slice().sort((a, b) => b.comments.length - a.comments.length);
-    const commentAmount = cardsForMostCommented.reduce((acc, {comments}) => comments.length + acc, 0);
-    if (commentAmount > 0) {
-      this._renderCards(cardsForMostCommented.slice(0, CardCount.LIST_EXTRA), moviesMostCommented);
+    const cardsForMostCommented = this._moviesModel.getMostComment();
+    if (cardsForMostCommented !== 0) {
+      this._renderCards(cardsForMostCommented, moviesMostCommented);
     }
 
     this._sort.setChangeSortHandler(this._changeSort);
   }
 
-  _movieClickHandler(cardData) {
-    const popupStarting = () => {
-      const movieController = new MovieController(document.querySelector(`.footer`));
-      movieController.render(cardData);
-    };
-
-    const moviePoster = this.getElement().querySelector(`img`);
-    const movieTitle = this.getElement().querySelector(`.film-card__title`);
-    const movieComment = this.getElement().querySelector(`.film-card__comments`);
-    moviePoster.addEventListener(`click`, popupStarting);
-    movieTitle.addEventListener(`click`, popupStarting);
-    movieComment.addEventListener(`click`, popupStarting);
-    moviePoster.style = `cursor: pointer`;
-    movieTitle.style = `cursor: pointer`;
-  }
-
   _showMoreClickHandler(container) {
     this._showMore.getElement().addEventListener(`click`, () => {
       let quantityOfCards = container.querySelectorAll(`.film-card`).length;
-      this._renderCards(this._cardsData.slice(quantityOfCards, (quantityOfCards + CardCount.LIST_MAIN)), container);
+      this._renderCards(this._moviesModel.getMovies().slice(quantityOfCards, (quantityOfCards + CardCount.LIST_MAIN)), container);
       quantityOfCards = container.querySelectorAll(`.film-card`).length;
-      if (quantityOfCards === this._cardsData.length) {
+      if (quantityOfCards === this._moviesModel.getMoviesCount()) {
         this._showMore.getElement().remove();
       }
     });
+  }
+
+  _onViewChange() {
+    this._movieControllersList.forEach((controller) => controller.setDefaultView());
   }
 }
