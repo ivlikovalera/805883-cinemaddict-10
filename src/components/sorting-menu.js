@@ -17,12 +17,11 @@ export default class SortingMenu extends AbstractComponent {
     const sortList = this.getElement();
     this.getElement().querySelectorAll(`a`).forEach((sortButton) => {
       sortButton.addEventListener(`click`, (evt) => {
-        if (evt.currentTarget.classList.contains(`sort__button--active`)) {
-          return;
+        if (!evt.currentTarget.classList.contains(`sort__button--active`)) {
+          sortList.querySelector(`.sort__button--active`).classList.remove(`sort__button--active`);
+          evt.currentTarget.classList.add(`sort__button--active`);
+          changeSort(evt.currentTarget.dataset.sort);
         }
-        sortList.querySelector(`.sort__button--active`).classList.remove(`sort__button--active`);
-        evt.currentTarget.classList.add(`sort__button--active`);
-        changeSort(evt.currentTarget);
       });
     });
   }

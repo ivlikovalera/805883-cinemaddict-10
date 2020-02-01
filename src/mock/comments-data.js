@@ -1,5 +1,6 @@
 import {CARD_TEXT} from './card-data.js';
 export const getComments = () => ({
+  id: null,
   emojiPic: [
     `./images/emoji/smile.png`,
     `./images/emoji/puke.png`,

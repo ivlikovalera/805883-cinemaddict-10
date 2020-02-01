@@ -7,11 +7,13 @@ export const Position = {
   BEFOREEND: `beforeend`,
   AFTEREND: `afterend`,
 };
-export const KeyCode = {
-  ESC_KEY: 27,
-  CTRL_KEY: 17,
-  ENTER_KEY: 13,
+
+export const Key = {
+  ESC_KEY: `Escape`,
+  CTRL_KEY: `Control`,
+  ENTER_KEY: `Enter`,
 };
+
 export const ExtraName = {
   TOP_RATED: `Top rated`,
   MOST_COMMENTED: `Most commented`,
@@ -26,6 +28,32 @@ export const SortType = {
   DEFAULT: `default`,
   DATE: `date`,
   RATING: `rating`,
+};
+
+export const StatusType = {
+  ALL: `all`,
+  FAVORITE: `favorite`,
+  WATCHLIST: `watchlist`,
+  WATCHED: `watched`,
+};
+
+export const ViewModes = {
+  CARD: `card`,
+  POPUP: `popup`,
+};
+
+export const EmojiValues = {
+  SMILE: `emoji-smile`,
+  SLEEPING: `emoji-sleeping`,
+  GPUKE: `emoji-gpuke`,
+  ANGRY: `emoji-angry`,
+};
+
+export const EmojiURL = {
+  SMILE: `./images/emoji/smile.png`,
+  SLEEPING: `./images/emoji/sleeping.png`,
+  GPUKE: `./images/emoji/puke.png`,
+  ANGRY: `./images/emoji/angry.png`,
 };
 
 export const getShuffleArray = (values) => {
