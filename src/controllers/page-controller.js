@@ -9,10 +9,10 @@ import MovieController from "./../controllers/movie-controller.js";
 export default class PageController {
   constructor(container, moviesModel) {
     this._container = container;
-    this._moviesList = new MoviesList().getElement();
-    this._noMovieMessage = new NoMovieMessage().getElement();
-    this._topRatedList = new MoviesListExtra(ExtraName.TOP_RATED).getElement();
-    this._mostCommentedList = new MoviesListExtra(ExtraName.MOST_COMMENTED).getElement();
+    this._moviesList = new MoviesList();
+    this._noMovieMessage = new NoMovieMessage();
+    this._topRatedList = new MoviesListExtra(ExtraName.TOP_RATED);
+    this._mostCommentedList = new MoviesListExtra(ExtraName.MOST_COMMENTED);
 
     this._showMore = new ShowMoreButton();
 
@@ -34,13 +34,18 @@ export default class PageController {
   }
 
   _rerenderCardsList() {
-    unrender(this._moviesList);
-    unrender(this._noMovieMessage);
+    unrender(this._moviesList.getElement());
+    unrender(this._noMovieMessage.getElement());
     this._movieControllersList.forEach((controller) => controller.clear());
-    this._movieControllersList = [];
     unrender(this._showMore.getElement());
-    unrender(this._topRatedList);
-    unrender(this._mostCommentedList);
+    unrender(this._topRatedList.getElement());
+    unrender(this._mostCommentedList.getElement());
+    this._moviesList.removeElement();
+    this._noMovieMessage.removeElement();
+    this._showMore.removeElement();
+    this._topRatedList.removeElement();
+    this._mostCommentedList.removeElement();
+    this._movieControllersList = [];
     this.render();
   }
 
@@ -52,9 +57,9 @@ export default class PageController {
     this._moviesModel.refreshCard = this._rerenderCardsList;
 
     if (this._moviesModel.getMovies().length) {
-      render(this._container, this._moviesList, Position.BEFOREEND);
+      render(this._container, this._moviesList.getElement(), Position.BEFOREEND);
     } else {
-      render(this._container, this._noMovieMessage, Position.BEFOREEND);
+      render(this._container, this._noMovieMessage.getElement(), Position.BEFOREEND);
     }
 
     const moviesWrapper = this._container.querySelector(`.films`);
@@ -69,7 +74,7 @@ export default class PageController {
     }
 
     if (this._moviesModel.getMovies().length) {
-      render(moviesWrapper, this._topRatedList, Position.BEFOREEND);
+      render(moviesWrapper, this._topRatedList.getElement(), Position.BEFOREEND);
     }
 
     const moviesTopRated = moviesWrapper.querySelector(`.films-list--extra > .films-list__container`);
@@ -79,7 +84,7 @@ export default class PageController {
     }
 
     if (this._moviesModel.getMovies().length) {
-      render(moviesWrapper, this._mostCommentedList, Position.BEFOREEND);
+      render(moviesWrapper, this._mostCommentedList.getElement(), Position.BEFOREEND);
     }
     const moviesMostCommented = moviesWrapper.querySelector(`.films-list--extra:last-child > .films-list__container`);
     const cardsForMostCommented = this._moviesModel.getMostComment();

@@ -7,11 +7,13 @@ export const Position = {
   BEFOREEND: `beforeend`,
   AFTEREND: `afterend`,
 };
-export const KeyCode = {
-  ESC_KEY: 27,
-  CTRL_KEY: 17,
-  ENTER_KEY: 13,
+
+export const Key = {
+  ESC_KEY: `Escape`,
+  CTRL_KEY: `Control`,
+  ENTER_KEY: `Enter`,
 };
+
 export const ExtraName = {
   TOP_RATED: `Top rated`,
   MOST_COMMENTED: `Most commented`,

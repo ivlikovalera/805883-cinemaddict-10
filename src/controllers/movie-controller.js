@@ -14,6 +14,7 @@ export default class MovieController {
     this._onViewChange = onViewChange;
     this._detailsClickHandler = this._detailsClickHandler.bind(this);
     this._deleteCommentClickHandler = this._deleteCommentClickHandler.bind(this);
+    this._addCommentSubmitHandler = this._addCommentSubmitHandler.bind(this);
     this._viewMode = ViewModes.CARD;
     this._changeMode = this._changeMode.bind(this);
   }
@@ -51,7 +52,7 @@ export default class MovieController {
     this._rerenderCard(this._data);
   }
 
-  _addCommentClickHandler(comment) {
+  _addCommentSubmitHandler(comment) {
     this._data.comments.push(comment);
     this._onDataChange(this._data.id, this._data);
     this._popup.rerender();
@@ -67,6 +68,7 @@ export default class MovieController {
     this._popup.setCloseHandler(this._changeMode);
     this._popup.selectEmoji();
     this._popup.setDeleteCommentClickHandler(this._deleteCommentClickHandler);
+    this._popup.setAddCommentSubmitHandler(this._addCommentSubmitHandler);
   }
 
   _rerenderCard(data) {

@@ -14,7 +14,7 @@ export default class FiltersMenu extends AbstractComponent {
       <a href="#all" class="main-navigation__item main-navigation__item--active" data-filter="${StatusType.ALL}">All movies</a>
       <a href="#watchlist" class="main-navigation__item" data-filter="${StatusType.WATCHLIST}">Watchlist <span class="main-navigation__item-count">${this._watchlist}</span></a>
       <a href="#history" class="main-navigation__item" data-filter="${StatusType.WATCHED}">History <span class="main-navigation__item-count">${this._history}</span></a>
-      <a href="#favorites" class="main-navigation__item data-filter="${StatusType.FAVORITE}"">Favorites <span class="main-navigation__item-count">${this._favorites}</span></a>
+      <a href="#favorites" class="main-navigation__item" data-filter="${StatusType.FAVORITE}">Favorites <span class="main-navigation__item-count">${this._favorites}</span></a>
       <a href="#stats" class="main-navigation__item main-navigation__item--additional">Stats</a>
     </nav>`;
   }

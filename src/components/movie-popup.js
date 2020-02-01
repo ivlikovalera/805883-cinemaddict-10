@@ -1,6 +1,7 @@
 import AbstractSmartComponent from './abstract-smart-component.js';
-import {NON_BREAKING_SPACE, KeyCode, StatusType, EmojiValues, EmojiURL, ViewModes} from './../utils/utils.js';
+import {NON_BREAKING_SPACE, Key, StatusType, EmojiValues, EmojiURL, ViewModes} from './../utils/utils.js';
 import {unrender} from './../utils/render.js';
+import {dataToCommentData} from './../adapter/adapter.js';
 import moment from 'moment';
 
 export default class MoviePopup extends AbstractSmartComponent {
@@ -29,6 +30,7 @@ export default class MoviePopup extends AbstractSmartComponent {
     this.recoveryListeners = this.recoveryListeners.bind(this);
     this.setDetailsClickHandler = this.setDetailsClickHandler.bind(this);
     this.closePopupHandler = this.closePopupHandler.bind(this);
+    this.setAddCommentSubmitHandler = this.setAddCommentSubmitHandler.bind(this);
   }
 
   setCloseHandler(changeMode) {
@@ -39,7 +41,7 @@ export default class MoviePopup extends AbstractSmartComponent {
       this._changeMode(ViewModes.CARD);
     });
     document.addEventListener(`keydown`, (evt) => {
-      if (evt.keyCode === KeyCode.ESC_KEY) {
+      if (evt.key === Key.ESC_KEY) {
         this.closePopupHandler();
         this._changeMode(ViewModes.CARD);
       }
@@ -54,6 +56,7 @@ export default class MoviePopup extends AbstractSmartComponent {
     this.setCloseHandler(this._changeMode);
     this.setDetailsClickHandler(this._detailsClickHandler);
     this.setDeleteCommentClickHandler(this._deleteCommentClickHandler);
+    this.setAddCommentSubmitHandler(this._addCommentSubmitHandler);
     this.selectEmoji();
   }
 
@@ -75,18 +78,29 @@ export default class MoviePopup extends AbstractSmartComponent {
   }
 
   setAddCommentSubmitHandler(handler) {
-    this.getElement().querySelector(`.film-details__comment-input`)
-     .addEventListener(`keydown`, (evt) => {
-       if (evt.keyCode === KeyCode.ENTER_KEY) {
-         handler({
-           id: this._comments.length,
-           emojiPic: this._selectedEmoji,
-           textComment: evt.currentTarget.value,
-           author: `Me`,
-           dateOfComment: new Date(),
-         });
-       }
-     });
+    this._addCommentSubmitHandler = handler;
+    const commentField = this.getElement().querySelector(`textarea`);
+    const ctrlKeyDownHandler = (evt) => {
+      if ((evt.key === Key.CTRL_KEY) && commentField.value) {
+        document.addEventListener(`keydown`, enterKeyDownHandler);
+      }
+    };
+
+    const enterKeyDownHandler = (evt) => {
+      if (evt.key === Key.ENTER_KEY) {
+        handler(dataToCommentData(commentField.value, this._selectedEmoji));
+        document.removeEventListener(`keydown`, enterKeyDownHandler);
+        commentField.value = ``;
+        this._currentEmoji = null;
+      }
+    };
+
+    document.addEventListener(`keydown`, ctrlKeyDownHandler);
+    document.addEventListener(`keyup`, (evt) => {
+      if (evt.key === Key.CTRL_KEY) {
+        document.removeEventListener(`keydown`, enterKeyDownHandler);
+      }
+    });
   }
 
   setDetailsClickHandler(handler) {
