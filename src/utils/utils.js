@@ -24,6 +24,22 @@ export const CardCount = {
   LIST_ALL: 19,
 };
 
+export const TypeStats = {
+  ALL: `statistic-all-time`,
+  TODAY: `statistic-today`,
+  WEEK: `statistic-week`,
+  MONTH: `statistic-month`,
+  YEAR: `statistic-year`,
+};
+
+export const FormatDataType = {
+  YEAR: `YYYY`,
+  WEEK: `ww`,
+  MONTH_YEAR: `MM YYYY`,
+  DATE_WITH_MINUTES: `YY/MM/DD HH:mm`,
+  DATE: `DD MMMM YYYY`,
+};
+
 export const SortType = {
   DEFAULT: `default`,
   DATE: `date`,
@@ -40,6 +56,11 @@ export const StatusType = {
 export const ViewModes = {
   CARD: `card`,
   POPUP: `popup`,
+};
+
+export const ViewPageModes = {
+  LIST: `list`,
+  STATS: `stats`,
 };
 
 export const EmojiValues = {

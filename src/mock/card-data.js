@@ -111,7 +111,7 @@ export const getCard = () => ({
     `16`,
     `18`,
   ][Math.floor(Math.random() * 5)],
-  // watchingDate: Date.now() - Math.floor(Math.random() * 365 / 80) * 24 * 60 * 60 * 1000,
+  watchingDate: Date.now() - Math.floor(Math.random() * 365 / 80) * 24 * 60 * 60 * 1000,
   isWatchlist: Math.floor(Math.random() * 2),
   isWatched: Math.floor(Math.random() * 2),
   isFavorites: Math.floor(Math.random() * 2),

@@ -28,7 +28,9 @@ export default class FiltersMenu extends AbstractComponent {
           this.getElement().querySelector(`.main-navigation__item--active`)
             .classList.remove(`main-navigation__item--active`);
           evt.currentTarget.classList.add(`main-navigation__item--active`);
-          handler(evt.currentTarget.dataset.filter);
+          if (!evt.currentTarget.classList.contains(`main-navigation__item--additional`)) {
+            handler(evt.currentTarget.dataset.filter);
+          }
         }
       });
     });
