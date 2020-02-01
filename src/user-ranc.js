@@ -1,4 +1,4 @@
-import {watchedFilms} from './mock/filter-data.js';
+import {getFilter} from './mock/filter-data.js';
 
 const UserRatingName = {
   NOVICE: `novice`,
@@ -11,7 +11,7 @@ const userRatingCount = {
   MEDIUM: 10,
   MAX: 20,
 };
-export const ratingOfUser = () => watchedFilms;
+export const ratingOfUser = () => getFilter().history;
 
 export const getUserRating = () => {
   if (ratingOfUser() >= userRatingCount.MIN && ratingOfUser() <= userRatingCount.MEDIUM) {

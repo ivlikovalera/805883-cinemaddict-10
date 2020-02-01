@@ -5,6 +5,7 @@ export default class MoviesModel {
     this._movies = movies;
     this._currentFilter = StatusType.ALL;
     this.refreshCard = null;
+    this._listOfGenres = this.getUniqueGenres();
   }
 
   getMovies() {
@@ -63,5 +64,53 @@ export default class MoviesModel {
       this._currentFilter = statusType;
       this.refreshCard();
     }
+  }
+
+  getUniqueGenres() {
+    const listGenres = [];
+    this._movies.forEach((card) => {
+      card.genres.forEach((genre) => {
+        if (!listGenres.includes(genre)) {
+          listGenres.push(genre);
+        }
+      });
+    });
+    return listGenres;
+  }
+
+  _sortMaxToMin(sortObj) {
+    const sortableGenres = [];
+    for (const genre in sortObj) {
+      if (sortObj[genre] !== 0) {
+        sortableGenres.push([genre, sortObj[genre]]);
+      }
+    }
+    sortableGenres.sort((a, b) => a[1] - b[1]).reverse();
+    const sortableGenresObject = {};
+    sortableGenres.forEach((genreCount) => {
+      sortableGenresObject[genreCount[0]] = genreCount[1];
+    });
+    return sortableGenresObject;
+  }
+
+  _getGenreStats() {
+    const numOfGenres = {};
+    for (const genre of this.getUniqueGenres()) {
+      numOfGenres[genre] = this._movies.reduce((acc, film) => {
+        if (film.isWatched) {
+          return film.genres.includes(genre) ? ++acc : acc;
+        }
+        return acc;
+      }, 0);
+    }
+    return this._sortMaxToMin(numOfGenres);
+  }
+
+  getStatistic() {
+    return Object.assign({}, {
+      watchedCount: this._movies.reduce((acc, it) => it.isWatched ? ++acc : acc, 0),
+      totalDuration: this._movies.reduce((acc, it) => acc + it.duration, 0),
+      topGenre: this._movies.some((card) => card.isWatched) ? this._getGenreStats() : ``,
+    });
   }
 }
