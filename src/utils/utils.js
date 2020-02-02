@@ -6,6 +6,19 @@ export const APIUrl = {
   GETCOMMENTS: `/comments/`,
 };
 
+
+export const UserRatingName = {
+  NOVICE: `novice`,
+  FAN: `fan`,
+  MOVIE_BAFF: `movie buff`,
+};
+
+export const UserRatingCount = {
+  MIN: 1,
+  MEDIUM: 10,
+  MAX: 20,
+};
+
 export const HTTPMethod = {
   GET: `GET`,
   POST: `POST`,

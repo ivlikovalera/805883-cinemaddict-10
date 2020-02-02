@@ -26,6 +26,7 @@ export default class ListMoviesController {
     this._onDataSave = this._onDataSave.bind(this);
     this._onViewChange = this._onViewChange.bind(this);
     this._rerenderCardsList = this._rerenderCardsList.bind(this);
+    this._rerenderChangeCards = this._rerenderChangeCards.bind(this);
   }
 
   _renderCards(currentCards, currentContainer) {
@@ -53,18 +54,26 @@ export default class ListMoviesController {
     this.render();
   }
 
+  _rerenderChangeCards(cardId) {
+    this._movieControllersList.filter((controller) =>
+      controller.getId() === cardId)
+      .forEach((controller) => controller.rerenderCard());
+  }
+
   _onDataChange(dataObj, type) {
     switch (type) {
       case ChangeType.CHANGEMOVIE:
         return this._api.updateMovie(dataObj)
           .then((newResponseData) => {
             this._moviesModel.changeMovie(dataObj.id, newResponseData);
+            this._rerenderChangeCards(dataObj.id);
             return newResponseData;
           });
       case ChangeType.ADDCOMMENT:
         return this._api.createPopupComment(dataObj)
           .then((newResponseData) => {
-            return this._onDataSave(dataObj.id, newResponseData.comments);
+            this._onDataSave(dataObj.id, newResponseData.comments);
+            this._rerenderChangeCards(dataObj.id);
           });
       case ChangeType.DELETECOMMENT:
         return this._api.deleteComment(dataObj)
@@ -76,6 +85,7 @@ export default class ListMoviesController {
             dataObj.card.listComments = dataObj.card.listComments.slice(0, deleteCommentIndex)
               .concat(dataObj.card.listComments.slice(deleteCommentIndex + 1));
             this._onDataSave(dataObj.card.id, dataObj.card.listComments);
+            this._rerenderChangeCards(dataObj.card.id);
           });
     }
     return dataObj;

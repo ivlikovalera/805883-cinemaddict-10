@@ -22,6 +22,7 @@ export default class MovieController {
     this._saveComments = this._saveComments.bind(this);
     this._viewMode = ViewModes.CARD;
     this._changeMode = this._changeMode.bind(this);
+    this.getId = this.getId.bind(this);
     this._api = new API(AUTHORIZATION, END_POINT);
   }
 
@@ -48,7 +49,6 @@ export default class MovieController {
     };
     this._onDataChange(dataObj, ChangeType.CHANGEMOVIE)
       .then((responseData) => {
-        this._rerenderCard(responseData);
         if (this._viewMode === ViewModes.POPUP) {
           this._popup.setStatus(responseData.isFavorites, responseData.isWatchlist, responseData.isWatched);
         }
@@ -62,8 +62,7 @@ export default class MovieController {
     };
 
     this._onDataChange(dataObj, ChangeType.DELETECOMMENT)
-    .then(() => this._popup.setComments(this._data.listComments))
-    .then(() => this._rerenderCard(this._data));
+    .then(() => this._popup.setComments(this._data.listComments));
   }
 
   _addCommentSubmitHandler(comment) {
@@ -74,7 +73,6 @@ export default class MovieController {
     this._popup.setFetching(true);
     this._onDataChange(dataObj, ChangeType.ADDCOMMENT)
       .then(() => this._popup.setComments(this._data.listComments))
-      .then(this._rerenderCard(this._data))
       .catch(this._popup.setSendCommentError);
   }
 
@@ -110,13 +108,17 @@ export default class MovieController {
     this._popup.setRatingClickHandler(this._ratingClickHandler);
   }
 
-  _rerenderCard(data) {
+  rerenderCard() {
     const oldCard = this._card.getElement();
     const parentElement = this._card.getElement().parentElement;
-    this._card = new MovieCard(data);
+    this._card = new MovieCard(this._data);
     parentElement.replaceChild(this._card.getElement(), oldCard);
     this._card.setMovieClickHandler(this._renderPopup);
     this._card.setDetailsClickHandler(this._detailsClickHandler);
+  }
+
+  getId() {
+    return this._data.id;
   }
 
   clear() {

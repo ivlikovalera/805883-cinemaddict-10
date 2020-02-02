@@ -1,6 +1,6 @@
 import AbstractSmartComponent from './abstract-smart-component.js';
 import {NON_BREAKING_SPACE, Key, StatusType, EmojiDictionary, ViewModes} from './../utils/utils.js';
-import {unrender} from './../utils/render.js';
+import {unrender, createElement} from './../utils/render.js';
 import moment from 'moment';
 
 const dataToCommentData = (comment, emotion) => {
@@ -214,7 +214,10 @@ export default class MoviePopup extends AbstractSmartComponent {
             this._selectedEmojiValue = EmojiDictionary.EmojiValue.ANGRY;
             break;
         }
-        this.rerender();
+        const emojiArea = this.getElement().querySelector(`.film-details__add-emoji-label`);
+        const oldEmoji = emojiArea.firstChild;
+        const newEmoji = createElement(this._getSelectedEmojiTemplate());
+        emojiArea.replaceChild(newEmoji, oldEmoji);
       });
     });
   }
@@ -299,7 +302,7 @@ export default class MoviePopup extends AbstractSmartComponent {
         </h3>
         <div class="film-details__new-comment">
           <div for="add-emoji" class="film-details__add-emoji-label">
-          ${this._selectedEmoji ? `<img src="${this._selectedEmoji}" width="55" height="55" alt="emoji">` : ``}
+          ${this._selectedEmoji ? this._getSelectedEmojiTemplate() : ``}
           </div>
 
           <label class="film-details__comment-label">
@@ -405,5 +408,9 @@ export default class MoviePopup extends AbstractSmartComponent {
   </div>
 </li>
 </ul>`;
+  }
+
+  _getSelectedEmojiTemplate() {
+    return `<img src="${this._selectedEmoji}" width="55" height="55" alt="emoji">`;
   }
 }

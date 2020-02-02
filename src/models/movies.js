@@ -1,4 +1,4 @@
-import {CardCount, SortType, StatusType} from './../utils/utils.js';
+import {CardCount, SortType, StatusType, UserRatingName, UserRatingCount} from './../utils/utils.js';
 
 export default class MoviesModel {
   setMovies(movies) {
@@ -39,8 +39,18 @@ export default class MoviesModel {
     this._movies[this._movies.findIndex((it) => it.id === id)] = data;
   }
 
+  getFilter() {
+    return Object.assign({}, {
+      watchlist: this._movies.reduce((acc, currentValue) => currentValue.isWatchlist ? acc + 1 : acc, 0),
+      history: this._movies.reduce((acc, currentValue) => currentValue.isWatched ? acc + 1 : acc, 0),
+      favorites: this._movies.reduce((acc, currentValue) => currentValue.isFavorites ? acc + 1 : acc, 0),
+    });
+  }
+
   addMovieComments(id, comments) {
     this._movies[this._movies.findIndex((it) => it.id === id)].listComments = comments;
+    this._movies[this._movies.findIndex((it) => it.id === id)].comments = comments
+      .map((comment) => comment.id);
   }
 
   getTopRated() {
@@ -89,7 +99,7 @@ export default class MoviesModel {
         sortableGenres.push([genre, sortObj[genre]]);
       }
     }
-    sortableGenres.sort((a, b) => a[1] - b[1]).reverse();
+    this._sortableGenres = sortableGenres.sort((a, b) => a[1] - b[1]).reverse();
     const sortableGenresObject = {};
     sortableGenres.forEach((genreCount) => {
       sortableGenresObject[genreCount[0]] = genreCount[1];
@@ -111,10 +121,24 @@ export default class MoviesModel {
   }
 
   getStatistic() {
+    this._getGenreStats();
     return Object.assign({}, {
       watchedCount: this._movies.reduce((acc, it) => it.isWatched ? ++acc : acc, 0),
       totalDuration: this._movies.reduce((acc, it) => acc + it.duration, 0),
-      topGenre: this._movies.some((card) => card.isWatched) ? this._getGenreStats() : ``,
+      topGenre: this._movies.some((card) => card.isWatched) ? this._sortableGenres[0][0] : ``,
     });
+  }
+
+  getUserRating() {
+    if (this.getFilter().history >= UserRatingCount.MIN && this.getFilter().history <= UserRatingCount.MEDIUM) {
+      return UserRatingName.NOVICE;
+    }
+    if (this.getFilter().history > UserRatingCount.MEDIUM && this.getFilter().history <= UserRatingCount.MAX) {
+      return UserRatingName.FAN;
+    }
+    if (this.getFilter().history > UserRatingCount.MAX) {
+      return UserRatingName.MOVIE_BAFF;
+    }
+    return ``;
   }
 }
