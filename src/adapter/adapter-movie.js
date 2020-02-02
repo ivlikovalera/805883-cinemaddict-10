@@ -44,7 +44,7 @@ export default class AdapterMovie {
         'writers': this.writers,
         'actors': this.actors,
         'release': {
-          'date': new Date(this.releaseDate),
+          'date': this.releaseDate.toISOString(),
           'release_country': this.country,
         },
         'description': this.description,
@@ -56,7 +56,7 @@ export default class AdapterMovie {
         'favorite': this.isFavorites,
         'watchlist': this.isWatchlist,
         'already_watched': this.isWatched,
-        'watching_date': new Date(this.viewedDate),
+        'watching_date': this.watchingDate.toISOString(),
       },
     };
   }

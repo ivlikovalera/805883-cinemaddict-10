@@ -14,15 +14,15 @@ export default class API {
       .then(AdapterMovie.parseMovies);
   }
 
-  updateMovie({id, data}) {
+  updateMovie(id, data) {
     return this._load({
       url: `${APIUrl.GETMOVIES}${id}`,
       method: HTTPMethod.PUT,
-      body: JSON.stringify(data),
+      body: JSON.stringify(data.toRAW()),
       headers: new Headers({'Content-Type': `application/json`})
     })
       .then(API.toJSON)
-      .then(AdapterMovie.parseMovies);
+      .then(AdapterMovie.parseMovie);
   }
 
   deleteComment({commentId}) {
