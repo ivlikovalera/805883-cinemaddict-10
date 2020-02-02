@@ -74,18 +74,25 @@ export const ViewPageModes = {
   STATS: `stats`,
 };
 
-export const EmojiValues = {
-  SMILE: `emoji-smile`,
-  SLEEPING: `emoji-sleeping`,
-  GPUKE: `emoji-gpuke`,
-  ANGRY: `emoji-angry`,
-};
-
-export const EmojiURL = {
-  SMILE: `./images/emoji/smile.png`,
-  SLEEPING: `./images/emoji/sleeping.png`,
-  GPUKE: `./images/emoji/puke.png`,
-  ANGRY: `./images/emoji/angry.png`,
+export const EmojiDictionary = {
+  ElementId: {
+    SMILE: `emoji-smile`,
+    SLEEPING: `emoji-sleeping`,
+    GPUKE: `emoji-gpuke`,
+    ANGRY: `emoji-angry`,
+  },
+  EmojiURL: {
+    SMILE: `./images/emoji/smile.png`,
+    SLEEPING: `./images/emoji/sleeping.png`,
+    GPUKE: `./images/emoji/puke.png`,
+    ANGRY: `./images/emoji/angry.png`,
+  },
+  EmojiValue: {
+    SMILE: `smile`,
+    SLEEPING: `sleeping`,
+    GPUKE: `puke`,
+    ANGRY: `angry`
+  }
 };
 
 export const getShuffleArray = (values) => {

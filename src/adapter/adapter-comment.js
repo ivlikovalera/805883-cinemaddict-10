@@ -2,8 +2,8 @@ export default class AdapterComment {
   constructor(data) {
     this.id = data[`id`];
     this.author = data[`author`];
-    this.textComment = data[`comment`];
-    this.dateOfComment = data[`date`];
+    this.comment = data[`comment`];
+    this.date = data[`date`];
     this.emotion = data[`emotion`];
   }
 
@@ -19,8 +19,8 @@ export default class AdapterComment {
     return {
       'id': this.id,
       'author': this.author,
-      'comment': this.textComment,
-      'date': this.dateOfComment,
+      'comment': this.comment,
+      'date': this.date,
       'emotion': this.emotion,
     };
   }

@@ -1,8 +1,8 @@
-export const dataToCommentData = (textComment, emoji) => {
+export const dataToCommentData = (comment, emoji) => {
   return Object.assign({}, {
-    textComment,
+    comment,
     emojiPic: emoji,
     author: `Me`,
-    dateOfComment: new Date(),
+    date: new Date(),
   });
 };

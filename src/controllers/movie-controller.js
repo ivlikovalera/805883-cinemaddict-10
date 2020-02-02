@@ -1,7 +1,9 @@
 import {Position, StatusType, ViewModes} from './../utils/utils.js';
+import {AUTHORIZATION, END_POINT} from './../utils/server.js';
 import {render, unrender} from './../utils/render.js';
 import MoviePopup from './../components/movie-popup.js';
-import MovieCard from "./../components/movie-card.js";
+import MovieCard from './../components/movie-card.js';
+import API from './../api/api.js';
 
 export default class MovieController {
   constructor(cardsContainer, popupContainer, onDataChange, onViewChange) {
@@ -15,8 +17,10 @@ export default class MovieController {
     this._detailsClickHandler = this._detailsClickHandler.bind(this);
     this._deleteCommentClickHandler = this._deleteCommentClickHandler.bind(this);
     this._addCommentSubmitHandler = this._addCommentSubmitHandler.bind(this);
+    this._saveComments = this._saveComments.bind(this);
     this._viewMode = ViewModes.CARD;
     this._changeMode = this._changeMode.bind(this);
+    this._api = new API(AUTHORIZATION, END_POINT);
   }
 
 
@@ -59,6 +63,12 @@ export default class MovieController {
     this._rerenderCard(this._data);
   }
 
+  _saveComments(comments) {
+    this._data.comments = comments;
+    console.log(comments);
+    this._onDataChange(this._data.id, this._data);
+  }
+
   _renderPopup() {
     this._onViewChange();
     this._viewMode = ViewModes.POPUP;
@@ -92,7 +102,11 @@ export default class MovieController {
     this._card = new MovieCard(movieData);
 
     render(this._cardsContainer, this._card.getElement(), Position.BEFOREEND);
-    this._card.setMovieClickHandler(this._renderPopup);
+    this._card.setMovieClickHandler(() => {
+      this._api.getPopupComments(this._data.id)
+     .then(this._saveComments)
+     .then(this._renderPopup);
+    });
     this._card.setDetailsClickHandler(this._detailsClickHandler);
   }
 

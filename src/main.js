@@ -5,11 +5,8 @@ import StatisticFooter from './components/statistic-footer.js';
 import {getUserRating} from './user-ranc.js';
 import API from './api/api.js';
 import PageController from './controllers/page-controller.js';
-
+import {AUTHORIZATION, END_POINT} from './utils/server.js';
 import MoviesModel from './models/movies.js';
-
-const AUTHORIZATION = `Basic eo0w590ik29889a`;
-const END_POINT = `https://htmlacademy-es-10.appspot.com/cinemaddict/`;
 
 const siteHeaderElement = document.querySelector(`.header`);
 const siteMainElement = document.querySelector(`.main`);
