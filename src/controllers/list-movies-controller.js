@@ -1,11 +1,12 @@
 import {render, unrender} from './../utils/render.js';
 import {Position, CardCount, ExtraName} from './../utils/utils.js';
+import {AUTHORIZATION, END_POINT} from './../utils/server.js';
 import MoviesList from './../components/movies-list.js';
 import NoMovieMessage from './../components/no-movie-message.js';
 import ShowMoreButton from './../components/show-more-button.js';
 import MoviesListExtra from './../components/movies-list-extra.js';
 import MovieController from "./../controllers/movie-controller.js";
-
+import API from './../api/api.js';
 
 export default class ListMoviesController {
   constructor(container, moviesModel) {
@@ -17,10 +18,12 @@ export default class ListMoviesController {
     this._showMore = new ShowMoreButton();
 
     this._moviesModel = moviesModel;
+    this._api = new API(AUTHORIZATION, END_POINT);
+    this._movieControllersList = [];
 
     this._showMoreClickHandler = this._showMoreClickHandler.bind(this);
     this._onDataChange = this._onDataChange.bind(this);
-    this._movieControllersList = [];
+    this._onDataSave = this._onDataSave.bind(this);
     this._onViewChange = this._onViewChange.bind(this);
     this._rerenderCardsList = this._rerenderCardsList.bind(this);
   }
@@ -28,7 +31,7 @@ export default class ListMoviesController {
   _renderCards(currentCards, currentContainer) {
     currentCards.forEach((cardData) => {
       const movieController = new MovieController(currentContainer, document
-        .querySelector(`.footer`), this._onDataChange, this._onViewChange);
+        .querySelector(`.footer`), this._onDataChange, this._onDataSave, this._onViewChange);
       movieController.render(cardData);
       this._movieControllersList.push(movieController);
     });
@@ -51,7 +54,15 @@ export default class ListMoviesController {
   }
 
   _onDataChange(oldCardId, newCard) {
-    this._moviesModel.changeMovie(oldCardId, newCard);
+    return this._api.updateMovie(oldCardId, newCard)
+      .then((newResponseData) => {
+        this._moviesModel.changeMovie(oldCardId, newResponseData);
+        return newResponseData;
+      });
+  }
+
+  _onDataSave(cardId, data) {
+    this._moviesModel.changeMovie(cardId, data);
   }
 
   hideCardList() {
@@ -100,8 +111,6 @@ export default class ListMoviesController {
     if (cardsForMostCommented !== 0) {
       this._renderCards(cardsForMostCommented, moviesMostCommented);
     }
-
-  
   }
 
   _showMoreClickHandler(container) {

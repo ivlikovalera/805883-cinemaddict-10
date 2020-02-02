@@ -3,7 +3,7 @@ import moment from 'moment';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import Statistic from './../components/statistic.js';
 import {getUserRating} from './../user-ranc.js';
-import {render, unrender} from './../utils/render.js';
+import {render} from './../utils/render.js';
 import {Position, TypeStats, FormatDataType} from './../utils/utils.js';
 
 

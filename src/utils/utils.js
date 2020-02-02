@@ -1,6 +1,17 @@
 export const NON_BREAKING_SPACE = `&nbsp`;
 export const MAX_NUM_OF_CHARACTERS = 140;
 
+export const APIUrl = {
+  GETMOVIES: `/movies/`,
+  GETCOMMENTS: `/comments/`,
+};
+
+export const HTTPMethod = {
+  GET: `GET`,
+  POST: `POST`,
+  PUT: `PUT`,
+};
+
 export const Position = {
   BEFOREBEGIN: `beforebegin`,
   AFTERBEGIN: `afterbegin`,
@@ -63,18 +74,25 @@ export const ViewPageModes = {
   STATS: `stats`,
 };
 
-export const EmojiValues = {
-  SMILE: `emoji-smile`,
-  SLEEPING: `emoji-sleeping`,
-  GPUKE: `emoji-gpuke`,
-  ANGRY: `emoji-angry`,
-};
-
-export const EmojiURL = {
-  SMILE: `./images/emoji/smile.png`,
-  SLEEPING: `./images/emoji/sleeping.png`,
-  GPUKE: `./images/emoji/puke.png`,
-  ANGRY: `./images/emoji/angry.png`,
+export const EmojiDictionary = {
+  ElementId: {
+    SMILE: `emoji-smile`,
+    SLEEPING: `emoji-sleeping`,
+    GPUKE: `emoji-gpuke`,
+    ANGRY: `emoji-angry`,
+  },
+  EmojiURL: {
+    SMILE: `./images/emoji/smile.png`,
+    SLEEPING: `./images/emoji/sleeping.png`,
+    GPUKE: `./images/emoji/puke.png`,
+    ANGRY: `./images/emoji/angry.png`,
+  },
+  EmojiValue: {
+    SMILE: `smile`,
+    SLEEPING: `sleeping`,
+    GPUKE: `puke`,
+    ANGRY: `angry`
+  }
 };
 
 export const getShuffleArray = (values) => {

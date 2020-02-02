@@ -1,5 +1,5 @@
 import AbstractSmartComponent from './abstract-smart-component.js';
-import {NON_BREAKING_SPACE, Key, StatusType, EmojiValues, EmojiURL, ViewModes} from './../utils/utils.js';
+import {NON_BREAKING_SPACE, Key, StatusType, EmojiDictionary, ViewModes} from './../utils/utils.js';
 import {unrender} from './../utils/render.js';
 import {dataToCommentData} from './../adapter/adapter.js';
 import moment from 'moment';
@@ -128,17 +128,17 @@ export default class MoviePopup extends AbstractSmartComponent {
       emojiButton.addEventListener(`click`, (evt) => {
         const emojiValue = evt.currentTarget.id;
         switch (emojiValue) {
-          case EmojiValues.SMILE:
-            this._selectedEmoji = EmojiURL.SMILE;
+          case EmojiDictionary.ElementId.SMILE:
+            this._selectedEmoji = EmojiDictionary.EmojiURL.SMILE;
             break;
-          case EmojiValues.SLEEPING:
-            this._selectedEmoji = EmojiURL.SLEEPING;
+          case EmojiDictionary.ElementId.SLEEPING:
+            this._selectedEmoji = EmojiDictionary.EmojiURL.SLEEPING;
             break;
-          case EmojiValues.GPUKE:
-            this._selectedEmoji = EmojiURL.GPUKE;
+          case EmojiDictionary.ElementId.GPUKE:
+            this._selectedEmoji = EmojiDictionary.EmojiURL.GPUKE;
             break;
-          case EmojiValues.ANGRY:
-            this._selectedEmoji = EmojiURL.ANGRY;
+          case EmojiDictionary.ElementId.ANGRY:
+            this._selectedEmoji = EmojiDictionary.EmojiURL.ANGRY;
             break;
         }
         this.rerender();
@@ -301,17 +301,32 @@ export default class MoviePopup extends AbstractSmartComponent {
   </div>`;
   }
 
-  _getCommentTemplate({id, emojiPic, textComment, author, dateOfComment}) {
+  _getCommentTemplate({id, emotion, comment, author, date}) {
+    let emojiPic = ``;
+    switch (emotion) {
+      case EmojiDictionary.EmojiValue.SMILE:
+        emojiPic = EmojiDictionary.EmojiURL.SMILE;
+        break;
+      case EmojiDictionary.EmojiValue.SLEEPING:
+        emojiPic = EmojiDictionary.EmojiURL.SLEEPING;
+        break;
+      case EmojiDictionary.EmojiValue.GPUKE:
+        emojiPic = EmojiDictionary.EmojiURL.GPUKE;
+        break;
+      case EmojiDictionary.EmojiValue.ANGRY:
+        emojiPic = EmojiDictionary.EmojiURL.ANGRY;
+        break;
+    }
     return `<ul class="film-details__comments-list" data-id="${id}">
   <li class="film-details__comment">
   <span class="film-details__comment-emoji">
     <img src=${emojiPic} width="55" height="55" alt="emoji">
   </span>
   <div>
-    <p class="film-details__comment-text">${textComment}</p>
+    <p class="film-details__comment-text">${comment}</p>
     <p class="film-details__comment-info">
       <span class="film-details__comment-author">${author}</span>
-      <span class="film-details__comment-day">${moment(dateOfComment).format(`YYYY/MM/DD hh:mm`)}</span>
+      <span class="film-details__comment-day">${moment(date).format(`YYYY/MM/DD hh:mm`)}</span>
       <button class="film-details__comment-delete">Delete</button>
     </p>
   </div>
