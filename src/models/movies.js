@@ -40,9 +40,7 @@ export default class MoviesModel {
   }
 
   addMovieComments(id, comments) {
-    console.log(comments);
     this._movies[this._movies.findIndex((it) => it.id === id)].listComments = comments;
-    console.log(this._movies[this._movies.findIndex((it) => it.id === id)].listComments);
   }
 
   getTopRated() {

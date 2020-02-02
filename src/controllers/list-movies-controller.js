@@ -64,8 +64,7 @@ export default class ListMoviesController {
       case ChangeType.ADDCOMMENT:
         return this._api.createPopupComment(dataObj)
           .then((newResponseData) => {
-            dataObj.card.comments.push(newResponseData);
-            return newResponseData;
+            return this._onDataSave(dataObj.id, newResponseData.comments);
           });
       case ChangeType.DELETECOMMENT:
         return this._api.deleteComment(dataObj)

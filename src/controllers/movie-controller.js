@@ -18,12 +18,12 @@ export default class MovieController {
     this._detailsClickHandler = this._detailsClickHandler.bind(this);
     this._deleteCommentClickHandler = this._deleteCommentClickHandler.bind(this);
     this._addCommentSubmitHandler = this._addCommentSubmitHandler.bind(this);
+    this._ratingClickHandler = this._ratingClickHandler.bind(this);
     this._saveComments = this._saveComments.bind(this);
     this._viewMode = ViewModes.CARD;
     this._changeMode = this._changeMode.bind(this);
     this._api = new API(AUTHORIZATION, END_POINT);
   }
-
 
   _changeMode(mode) {
     this._viewMode = mode;
@@ -50,7 +50,7 @@ export default class MovieController {
       .then((responseData) => {
         this._rerenderCard(responseData);
         if (this._viewMode === ViewModes.POPUP) {
-          this._popup.rerender();
+          this._popup.setStatus(responseData.isFavorites, responseData.isWatchlist, responseData.isWatched);
         }
       });
   }
@@ -60,19 +60,36 @@ export default class MovieController {
       commentId,
       card: this._data,
     };
+
     this._onDataChange(dataObj, ChangeType.DELETECOMMENT)
-    .then(() => {
-      console.log(this._data);
-      this._popup.rerender();
-    })
+    .then(() => this._popup.setComments(this._data.listComments))
     .then(() => this._rerenderCard(this._data));
   }
 
   _addCommentSubmitHandler(comment) {
-    this._data.comments.push(comment);
-    this._onDataChange(this._data.id, this._data);
-    this._popup.rerender();
-    this._rerenderCard(this._data);
+    const dataObj = {
+      id: this._data.id,
+      comment,
+    };
+    this._popup.setFetching(true);
+    this._onDataChange(dataObj, ChangeType.ADDCOMMENT)
+      .then(() => this._popup.setComments(this._data.listComments))
+      .then(this._rerenderCard(this._data))
+      .catch(this._popup.setSendCommentError);
+  }
+
+  _ratingClickHandler(rating) {
+    const newData = this._data;
+    newData.personalRating = rating;
+
+    const dataObj = {
+      id: this._data.id,
+      data: newData,
+    };
+
+    this._onDataChange(dataObj, ChangeType.CHANGEMOVIE)
+    .then(() => this._popup.setRating(rating))
+    .catch(this._popup.setSendRatingError);
   }
 
   _saveComments(comments) {
@@ -90,6 +107,7 @@ export default class MovieController {
     this._popup.selectEmoji();
     this._popup.setDeleteCommentClickHandler(this._deleteCommentClickHandler);
     this._popup.setAddCommentSubmitHandler(this._addCommentSubmitHandler);
+    this._popup.setRatingClickHandler(this._ratingClickHandler);
   }
 
   _rerenderCard(data) {

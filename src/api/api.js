@@ -1,6 +1,6 @@
 import {HTTPMethod, APIUrl} from './../utils/utils.js';
 import AdapterMovie from './../adapter/adapter-movie.js';
-import AdapterComment from './../adapter/adapter-movie.js';
+import AdapterComment from './../adapter/adapter-comment.js';
 
 export default class API {
   constructor(authorization, endPoint) {
@@ -37,7 +37,7 @@ export default class API {
       headers: new Headers({'Content-Type': `application/json`}),
     })
       .then(API.toJSON)
-      .then(AdapterComment.parseComment);
+      .then(AdapterMovie.parsemovie);
   }
 
   getPopupComments(id) {

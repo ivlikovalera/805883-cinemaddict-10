@@ -1,12 +1,19 @@
 import AbstractSmartComponent from './abstract-smart-component.js';
 import {NON_BREAKING_SPACE, Key, StatusType, EmojiDictionary, ViewModes} from './../utils/utils.js';
 import {unrender} from './../utils/render.js';
-import {dataToCommentData} from './../adapter/adapter.js';
 import moment from 'moment';
+
+const dataToCommentData = (comment, emotion) => {
+  return Object.assign({}, {
+    comment,
+    emotion,
+    date: new Date(),
+  });
+};
 
 export default class MoviePopup extends AbstractSmartComponent {
   constructor({id, title, alternativeTitle, rating, director, writers, actors, image, duration, country,
-    releaseDate, genres, description, ageRating, listComments, isWatchlist, isWatched, isFavorites}) {
+    releaseDate, genres, description, ageRating, listComments, isWatchlist, isWatched, isFavorites, personalRating}) {
     super();
     this._id = id;
     this._title = title;
@@ -26,11 +33,22 @@ export default class MoviePopup extends AbstractSmartComponent {
     this._isWatchlist = isWatchlist;
     this._isWatched = isWatched;
     this._isFavorites = isFavorites;
+    this._personalRating = personalRating;
     this._selectedEmoji = null;
+    this._selectedEmojiValue = null;
+    this._isFetching = false;
+    this._sendCommentError = false;
+    this._sendRatingError = false;
     this.recoveryListeners = this.recoveryListeners.bind(this);
     this.setDetailsClickHandler = this.setDetailsClickHandler.bind(this);
     this.closePopupHandler = this.closePopupHandler.bind(this);
     this.setAddCommentSubmitHandler = this.setAddCommentSubmitHandler.bind(this);
+    this.setSendCommentError = this.setSendCommentError.bind(this);
+    this.setRatingClickHandler = this.setRatingClickHandler.bind(this);
+    this.setStatus = this.setStatus.bind(this);
+    this.setComments = this.setComments.bind(this);
+    this.setRating = this.setRating.bind(this);
+    this.setSendRatingError = this.setSendRatingError.bind(this);
   }
 
   setCloseHandler(changeMode) {
@@ -48,8 +66,42 @@ export default class MoviePopup extends AbstractSmartComponent {
     });
   }
 
+  setRating(rating) {
+    this._personalRating = rating;
+    this.rerender();
+  }
+
+  setSendCommentError() {
+    this._sendCommentError = true;
+    this._isFetching = false;
+    this.rerender();
+  }
+
+  setSendRatingError() {
+    this._sendRatingError = true;
+    this.rerender();
+  }
+
+  setFetching(status) {
+    this._isFetching = status;
+    this.rerender();
+  }
+
   closePopupHandler() {
     unrender(this.getElement());
+  }
+
+  setStatus(favorite, watchlist, watched) {
+    this._isWatched = watched;
+    this._isWatchlist = watchlist;
+    this._isFavorites = favorite;
+    this.rerender();
+  }
+
+  setComments(comments) {
+    this._isFetching = false;
+    this._comments = comments;
+    this.rerender();
   }
 
   recoveryListeners() {
@@ -57,6 +109,7 @@ export default class MoviePopup extends AbstractSmartComponent {
     this.setDetailsClickHandler(this._detailsClickHandler);
     this.setDeleteCommentClickHandler(this._deleteCommentClickHandler);
     this.setAddCommentSubmitHandler(this._addCommentSubmitHandler);
+    this.setRatingClickHandler(this._ratingClickHandler);
     this.selectEmoji();
   }
 
@@ -68,11 +121,6 @@ export default class MoviePopup extends AbstractSmartComponent {
         commentElement.querySelector(`.film-details__comment-delete`)
           .addEventListener(`click`, (evt) => {
             evt.preventDefault();
-            const commentIndex = this._comments
-            .findIndex((it) => it.id === commentElement.dataset.id);
-            this._comments = this._comments
-            .slice(0, commentIndex).concat(this._comments
-             .slice(commentIndex + 1, this._comments.length));
             handler(id);
           });
       });
@@ -89,10 +137,12 @@ export default class MoviePopup extends AbstractSmartComponent {
 
     const enterKeyDownHandler = (evt) => {
       if (evt.key === Key.ENTER_KEY) {
-        handler(dataToCommentData(commentField.value, this._selectedEmoji));
+        handler(dataToCommentData(commentField.value, this._selectedEmojiValue));
         document.removeEventListener(`keydown`, enterKeyDownHandler);
         commentField.value = ``;
-        this._currentEmoji = null;
+        this._sendCommentError = false;
+        this._selectedEmoji = null;
+        this._selectedEmojiValue = null;
       }
     };
 
@@ -104,20 +154,38 @@ export default class MoviePopup extends AbstractSmartComponent {
     });
   }
 
+  setRatingClickHandler(handler) {
+    this._ratingClickHandler = handler;
+    this.getElement().querySelectorAll(`.film-details__user-rating-input`)
+      .forEach((button) => button.addEventListener(`click`, (evt) => {
+        const value = parseInt(evt.currentTarget.value, 10);
+        if (this._personalRating !== value) {
+          handler(value);
+        } else {
+          handler(0);
+        }
+      }));
+  }
+
+  setUndoRatingHandler(handler) {
+    const resetRatingButton = this.getElement().querySelector(`.film-details__watched-reset`);
+
+    if (resetRatingButton) {
+      resetRatingButton.addEventListener(`click`, handler);
+    }
+  }
+
   setDetailsClickHandler(handler) {
     this._detailsClickHandler = handler;
     this.getElement().querySelectorAll(`.film-details__control-label`).forEach((checkbox) => {
       checkbox.addEventListener(`click`, (evt) => {
         if (evt.currentTarget.classList.contains(`film-details__control-label--favorite`)) {
-          this._isFavorites = !this._isFavorites;
           handler(StatusType.FAVORITE);
         }
         if (evt.currentTarget.classList.contains(`film-details__control-label--watched`)) {
-          this._isWatched = !this._isWatched;
           handler(StatusType.WATCHED);
         }
         if (evt.currentTarget.classList.contains(`film-details__control-label--watchlist`)) {
-          this._isWatchlist = !this._isWatchlist;
           handler(StatusType.WATCHLIST);
         }
       });
@@ -131,15 +199,19 @@ export default class MoviePopup extends AbstractSmartComponent {
         switch (emojiValue) {
           case EmojiDictionary.ElementId.SMILE:
             this._selectedEmoji = EmojiDictionary.EmojiURL.SMILE;
+            this._selectedEmojiValue = EmojiDictionary.EmojiValue.SMILE;
             break;
           case EmojiDictionary.ElementId.SLEEPING:
             this._selectedEmoji = EmojiDictionary.EmojiURL.SLEEPING;
+            this._selectedEmojiValue = EmojiDictionary.EmojiValue.SLEEPING;
             break;
           case EmojiDictionary.ElementId.GPUKE:
             this._selectedEmoji = EmojiDictionary.EmojiURL.GPUKE;
+            this._selectedEmojiValue = EmojiDictionary.EmojiValue.GPUKE;
             break;
           case EmojiDictionary.ElementId.ANGRY:
             this._selectedEmoji = EmojiDictionary.EmojiURL.ANGRY;
+            this._selectedEmojiValue = EmojiDictionary.EmojiValue.ANGRY;
             break;
         }
         this.rerender();
@@ -231,7 +303,7 @@ export default class MoviePopup extends AbstractSmartComponent {
           </div>
 
           <label class="film-details__comment-label">
-            <textarea class="film-details__comment-input" placeholder="Select reaction below and write comment here" name="comment"></textarea>
+            <textarea class="film-details__comment-input ${this._sendCommentError ? `shake error` : ``}" placeholder="Select reaction below and write comment here" name="comment" ${this._isFetching ? `disabled` : ``}></textarea>
           </label>
 
           <div class="film-details__emoji-list">
@@ -264,7 +336,7 @@ export default class MoviePopup extends AbstractSmartComponent {
 
 
   _getRatingTemplate() {
-    return `    <div class="form-details__middle-container">
+    return `<div class="form-details__middle-container ${this._sendRatingError ? `shake error` : ``}">
     <section class="film-details__user-rating-wrap">
       <div class="film-details__user-rating-controls">
         <button class="film-details__watched-reset" type="button">Undo</button>
@@ -277,23 +349,23 @@ export default class MoviePopup extends AbstractSmartComponent {
           <h3 class="film-details__user-rating-title">The Great Flamarion</h3>
           <p class="film-details__user-rating-feelings">How you feel it?</p>
           <div class="film-details__user-rating-score">
-            <input type="radio" name="score" class="film-details__user-rating-input visually-hidden" value="1" id="rating-1">
+            <input type="radio" name="score" class="film-details__user-rating-input visually-hidden" value="1" id="rating-1" ${this._personalRating === 1 ? `checked` : ``}>
             <label class="film-details__user-rating-label" for="rating-1">1</label>
-            <input type="radio" name="score" class="film-details__user-rating-input visually-hidden" value="2" id="rating-2">
+            <input type="radio" name="score" class="film-details__user-rating-input visually-hidden" value="2" id="rating-2" ${this._personalRating === 2 ? `checked` : ``}>
             <label class="film-details__user-rating-label" for="rating-2">2</label>
-            <input type="radio" name="score" class="film-details__user-rating-input visually-hidden" value="3" id="rating-3">
+            <input type="radio" name="score" class="film-details__user-rating-input visually-hidden" value="3" id="rating-3" ${this._personalRating === 3 ? `checked` : ``}>
             <label class="film-details__user-rating-label" for="rating-3">3</label>
-            <input type="radio" name="score" class="film-details__user-rating-input visually-hidden" value="4" id="rating-4">
+            <input type="radio" name="score" class="film-details__user-rating-input visually-hidden" value="4" id="rating-4" ${this._personalRating === 4 ? `checked` : ``}>
             <label class="film-details__user-rating-label" for="rating-4">4</label>
-            <input type="radio" name="score" class="film-details__user-rating-input visually-hidden" value="5" id="rating-5">
+            <input type="radio" name="score" class="film-details__user-rating-input visually-hidden" value="5" id="rating-5" ${this._personalRating === 5 ? `checked` : ``}>
             <label class="film-details__user-rating-label" for="rating-5">5</label>
-            <input type="radio" name="score" class="film-details__user-rating-input visually-hidden" value="6" id="rating-6">
+            <input type="radio" name="score" class="film-details__user-rating-input visually-hidden" value="6" id="rating-6" ${this._personalRating === 6 ? `checked` : ``}>
             <label class="film-details__user-rating-label" for="rating-6">6</label>
-            <input type="radio" name="score" class="film-details__user-rating-input visually-hidden" value="7" id="rating-7">
+            <input type="radio" name="score" class="film-details__user-rating-input visually-hidden" value="7" id="rating-7" ${this._personalRating === 7 ? `checked` : ``}>
             <label class="film-details__user-rating-label" for="rating-7">7</label>
-            <input type="radio" name="score" class="film-details__user-rating-input visually-hidden" value="8" id="rating-8">
+            <input type="radio" name="score" class="film-details__user-rating-input visually-hidden" value="8" id="rating-8" ${this._personalRating === 8 ? `checked` : ``}>
             <label class="film-details__user-rating-label" for="rating-8">8</label>
-            <input type="radio" name="score" class="film-details__user-rating-input visually-hidden" value="9" id="rating-9" checked>
+            <input type="radio" name="score" class="film-details__user-rating-input visually-hidden" value="9" id="rating-9" ${this._personalRating === 9 ? `checked` : ``}>
             <label class="film-details__user-rating-label" for="rating-9">9</label>
           </div>
         </section>
