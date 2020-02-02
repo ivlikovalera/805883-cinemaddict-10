@@ -10,6 +10,7 @@ export const HTTPMethod = {
   GET: `GET`,
   POST: `POST`,
   PUT: `PUT`,
+  DELETE: `DELETE`,
 };
 
 export const Position = {
@@ -72,6 +73,12 @@ export const ViewModes = {
 export const ViewPageModes = {
   LIST: `list`,
   STATS: `stats`,
+};
+
+export const ChangeType = {
+  CHANGEMOVIE: `change`,
+  ADDCOMMENT: `add`,
+  DELETECOMMENT: `delete`
 };
 
 export const EmojiDictionary = {

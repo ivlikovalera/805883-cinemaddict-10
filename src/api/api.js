@@ -14,7 +14,7 @@ export default class API {
       .then(AdapterMovie.parseMovies);
   }
 
-  updateMovie(id, data) {
+  updateMovie({id, data}) {
     return this._load({
       url: `${APIUrl.GETMOVIES}${id}`,
       method: HTTPMethod.PUT,

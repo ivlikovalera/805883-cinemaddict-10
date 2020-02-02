@@ -1,5 +1,5 @@
 import {render, unrender} from './../utils/render.js';
-import {Position, CardCount, ExtraName} from './../utils/utils.js';
+import {Position, CardCount, ExtraName, ChangeType} from './../utils/utils.js';
 import {AUTHORIZATION, END_POINT} from './../utils/server.js';
 import MoviesList from './../components/movies-list.js';
 import NoMovieMessage from './../components/no-movie-message.js';
@@ -53,16 +53,37 @@ export default class ListMoviesController {
     this.render();
   }
 
-  _onDataChange(oldCardId, newCard) {
-    return this._api.updateMovie(oldCardId, newCard)
-      .then((newResponseData) => {
-        this._moviesModel.changeMovie(oldCardId, newResponseData);
-        return newResponseData;
-      });
+  _onDataChange(dataObj, type) {
+    switch (type) {
+      case ChangeType.CHANGEMOVIE:
+        return this._api.updateMovie(dataObj)
+          .then((newResponseData) => {
+            this._moviesModel.changeMovie(dataObj.id, newResponseData);
+            return newResponseData;
+          });
+      case ChangeType.ADDCOMMENT:
+        return this._api.createPopupComment(dataObj)
+          .then((newResponseData) => {
+            dataObj.card.comments.push(newResponseData);
+            return newResponseData;
+          });
+      case ChangeType.DELETECOMMENT:
+        return this._api.deleteComment(dataObj)
+          .then(() => {
+            const deleteCommentIndex = dataObj.card.comments.findIndex((comment) =>
+              comment === dataObj.commentId);
+            dataObj.card.comments = dataObj.card.comments.slice(0, deleteCommentIndex)
+              .concat(dataObj.card.comments.slice(deleteCommentIndex + 1, dataObj.card.comments.length));
+            dataObj.card.listComments = dataObj.card.listComments.slice(0, deleteCommentIndex)
+              .concat(dataObj.card.listComments.slice(deleteCommentIndex + 1));
+            this._onDataSave(dataObj.card.id, dataObj.card.listComments);
+          });
+    }
+    return dataObj;
   }
 
-  _onDataSave(cardId, data) {
-    this._moviesModel.changeMovie(cardId, data);
+  _onDataSave(cardId, comments) {
+    this._moviesModel.addMovieComments(cardId, comments);
   }
 
   hideCardList() {

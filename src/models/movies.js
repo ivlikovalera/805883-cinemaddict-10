@@ -39,6 +39,12 @@ export default class MoviesModel {
     this._movies[this._movies.findIndex((it) => it.id === id)] = data;
   }
 
+  addMovieComments(id, comments) {
+    console.log(comments);
+    this._movies[this._movies.findIndex((it) => it.id === id)].listComments = comments;
+    console.log(this._movies[this._movies.findIndex((it) => it.id === id)].listComments);
+  }
+
   getTopRated() {
     const ratingAmount = this._movies.reduce((acc, {rating}) => rating + acc, 0);
     if (ratingAmount > 0) {

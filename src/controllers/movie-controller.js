@@ -1,4 +1,4 @@
-import {Position, StatusType, ViewModes} from './../utils/utils.js';
+import {Position, StatusType, ViewModes, ChangeType} from './../utils/utils.js';
 import {AUTHORIZATION, END_POINT} from './../utils/server.js';
 import {render, unrender} from './../utils/render.js';
 import MoviePopup from './../components/movie-popup.js';
@@ -42,7 +42,11 @@ export default class MovieController {
         newData.isWatchlist = !newData.isWatchlist;
         break;
     }
-    this._onDataChange(this._data.id, newData)
+    const dataObj = {
+      id: this._data.id,
+      data: newData,
+    };
+    this._onDataChange(dataObj, ChangeType.CHANGEMOVIE)
       .then((responseData) => {
         this._rerenderCard(responseData);
         if (this._viewMode === ViewModes.POPUP) {
@@ -51,11 +55,17 @@ export default class MovieController {
       });
   }
 
-  _deleteCommentClickHandler(comments) {
-    this._data.comments = comments;
-    this._onDataChange(this._data.id, this._data);
-    this._popup.rerender();
-    this._rerenderCard(this._data);
+  _deleteCommentClickHandler(commentId) {
+    const dataObj = {
+      commentId,
+      card: this._data,
+    };
+    this._onDataChange(dataObj, ChangeType.DELETECOMMENT)
+    .then(() => {
+      console.log(this._data);
+      this._popup.rerender();
+    })
+    .then(() => this._rerenderCard(this._data));
   }
 
   _addCommentSubmitHandler(comment) {
@@ -66,8 +76,8 @@ export default class MovieController {
   }
 
   _saveComments(comments) {
-    this._data.comments = comments;
-    this._onDataSave(this._data.id, this._data);
+    this._comments = comments;
+    this._onDataSave(this._data.id, this._comments);
   }
 
   _renderPopup() {
@@ -101,7 +111,7 @@ export default class MovieController {
   render(movieData) {
     this._data = movieData;
     this._card = new MovieCard(movieData);
-
+    this._comments = this._data.commentsList;
     render(this._cardsContainer, this._card.getElement(), Position.BEFOREEND);
     this._card.setMovieClickHandler(() => {
       this._api.getPopupComments(this._data.id)

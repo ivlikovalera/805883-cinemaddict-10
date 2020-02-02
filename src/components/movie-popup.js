@@ -6,7 +6,7 @@ import moment from 'moment';
 
 export default class MoviePopup extends AbstractSmartComponent {
   constructor({id, title, alternativeTitle, rating, director, writers, actors, image, duration, country,
-    releaseDate, genres, description, ageRating, comments, isWatchlist, isWatched, isFavorites}) {
+    releaseDate, genres, description, ageRating, listComments, isWatchlist, isWatched, isFavorites}) {
     super();
     this._id = id;
     this._title = title;
@@ -22,7 +22,7 @@ export default class MoviePopup extends AbstractSmartComponent {
     this._image = image;
     this._description = description;
     this._ageRating = ageRating;
-    this._comments = comments;
+    this._comments = listComments;
     this._isWatchlist = isWatchlist;
     this._isWatched = isWatched;
     this._isFavorites = isFavorites;
@@ -64,15 +64,16 @@ export default class MoviePopup extends AbstractSmartComponent {
     this._deleteCommentClickHandler = handler;
     this.getElement().querySelectorAll(`.film-details__comments-list`)
       .forEach((commentElement) => {
+        const id = commentElement.dataset.id;
         commentElement.querySelector(`.film-details__comment-delete`)
           .addEventListener(`click`, (evt) => {
             evt.preventDefault();
             const commentIndex = this._comments
-              .findIndex((it) => it.id === commentElement.dataset.id);
+            .findIndex((it) => it.id === commentElement.dataset.id);
             this._comments = this._comments
-              .slice(0, commentIndex).concat(this._comments
-               .slice(commentIndex + 1, this._comments.length));
-            handler(this._comments);
+            .slice(0, commentIndex).concat(this._comments
+             .slice(commentIndex + 1, this._comments.length));
+            handler(id);
           });
       });
   }
