@@ -1,6 +1,17 @@
 export const NON_BREAKING_SPACE = `&nbsp`;
 export const MAX_NUM_OF_CHARACTERS = 140;
 
+export const APIUrl = {
+  GETMOVIES: `/movies/`,
+  GETCOMMENTS: `/comments/`,
+};
+
+export const HTTPMethod = {
+  GET: `GET`,
+  POST: `POST`,
+  PUT: `PUT`,
+};
+
 export const Position = {
   BEFOREBEGIN: `beforebegin`,
   AFTERBEGIN: `afterbegin`,

@@ -28,7 +28,7 @@ export default class MovieCard extends AbstractComponent {
     <p class="film-card__info">
       <span class="film-card__year">${moment(this._releaseDate).format(`YYYY`)}</span>
       <span class="film-card__duration">${Math.floor(this._duration / 60) ? `${Math.floor(this._duration / 60)}h${NON_BREAKING_SPACE}` : ``}${this._duration % 60 ? `${this._duration % 60}m` : ``}</span>
-      <span class="film-card__genre">${this._genres[0]}</span>
+      <span class="film-card__genre">${this._genres.length ? this._genres[0] : ``}</span>
     </p>
     <img src="${this._image}" alt="${this._title}" class="film-card__poster">
     <p class="film-card__description">${this._description.length >= MAX_NUM_OF_CHARACTERS ? `${(this._description).slice(0, MAX_NUM_OF_CHARACTERS)}...` : this._description}</p>
@@ -48,7 +48,10 @@ export default class MovieCard extends AbstractComponent {
     const movieComment = this.getElement().querySelector(`.film-card__comments`);
     moviePoster.addEventListener(`click`, handler);
     movieTitle.addEventListener(`click`, handler);
-    movieComment.addEventListener(`click`, handler);
+    movieComment.addEventListener(`click`, (evt) => {
+      evt.preventDefault();
+      handler();
+    });
     moviePoster.style = `cursor: pointer`;
     movieTitle.style = `cursor: pointer`;
   }

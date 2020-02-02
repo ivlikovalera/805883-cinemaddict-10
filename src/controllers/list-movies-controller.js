@@ -100,8 +100,6 @@ export default class ListMoviesController {
     if (cardsForMostCommented !== 0) {
       this._renderCards(cardsForMostCommented, moviesMostCommented);
     }
-
-  
   }
 
   _showMoreClickHandler(container) {
