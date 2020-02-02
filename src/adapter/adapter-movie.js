@@ -2,6 +2,7 @@ export default class AdapterMovie {
   constructor(data) {
     this.id = data[`id`];
     this.comments = data[`comments`];
+    this.listComments = data[`comments`];
     this.title = data[`film_info`][`title`];
     this.alternativeTitle = data[`film_info`][`alternative_title`];
     this.rating = data[`film_info`][`total_rating`];

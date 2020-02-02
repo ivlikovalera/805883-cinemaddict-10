@@ -6,10 +6,24 @@ export const APIUrl = {
   GETCOMMENTS: `/comments/`,
 };
 
+
+export const UserRatingName = {
+  NOVICE: `novice`,
+  FAN: `fan`,
+  MOVIE_BAFF: `movie buff`,
+};
+
+export const UserRatingCount = {
+  MIN: 1,
+  MEDIUM: 10,
+  MAX: 20,
+};
+
 export const HTTPMethod = {
   GET: `GET`,
   POST: `POST`,
   PUT: `PUT`,
+  DELETE: `DELETE`,
 };
 
 export const Position = {
@@ -72,6 +86,12 @@ export const ViewModes = {
 export const ViewPageModes = {
   LIST: `list`,
   STATS: `stats`,
+};
+
+export const ChangeType = {
+  CHANGEMOVIE: `change`,
+  ADDCOMMENT: `add`,
+  DELETECOMMENT: `delete`
 };
 
 export const EmojiDictionary = {

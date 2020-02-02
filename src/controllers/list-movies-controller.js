@@ -1,5 +1,5 @@
 import {render, unrender} from './../utils/render.js';
-import {Position, CardCount, ExtraName} from './../utils/utils.js';
+import {Position, CardCount, ExtraName, ChangeType} from './../utils/utils.js';
 import {AUTHORIZATION, END_POINT} from './../utils/server.js';
 import MoviesList from './../components/movies-list.js';
 import NoMovieMessage from './../components/no-movie-message.js';
@@ -26,6 +26,7 @@ export default class ListMoviesController {
     this._onDataSave = this._onDataSave.bind(this);
     this._onViewChange = this._onViewChange.bind(this);
     this._rerenderCardsList = this._rerenderCardsList.bind(this);
+    this._rerenderChangeCards = this._rerenderChangeCards.bind(this);
   }
 
   _renderCards(currentCards, currentContainer) {
@@ -53,16 +54,45 @@ export default class ListMoviesController {
     this.render();
   }
 
-  _onDataChange(oldCardId, newCard) {
-    return this._api.updateMovie(oldCardId, newCard)
-      .then((newResponseData) => {
-        this._moviesModel.changeMovie(oldCardId, newResponseData);
-        return newResponseData;
-      });
+  _rerenderChangeCards(cardId) {
+    this._movieControllersList.filter((controller) =>
+      controller.getId() === cardId)
+      .forEach((controller) => controller.rerenderCard());
   }
 
-  _onDataSave(cardId, data) {
-    this._moviesModel.changeMovie(cardId, data);
+  _onDataChange(dataObj, type) {
+    switch (type) {
+      case ChangeType.CHANGEMOVIE:
+        return this._api.updateMovie(dataObj)
+          .then((newResponseData) => {
+            this._moviesModel.changeMovie(dataObj.id, newResponseData);
+            this._rerenderChangeCards(dataObj.id);
+            return newResponseData;
+          });
+      case ChangeType.ADDCOMMENT:
+        return this._api.createPopupComment(dataObj)
+          .then((newResponseData) => {
+            this._onDataSave(dataObj.id, newResponseData.comments);
+            this._rerenderChangeCards(dataObj.id);
+          });
+      case ChangeType.DELETECOMMENT:
+        return this._api.deleteComment(dataObj)
+          .then(() => {
+            const deleteCommentIndex = dataObj.card.comments.findIndex((comment) =>
+              comment === dataObj.commentId);
+            dataObj.card.comments = dataObj.card.comments.slice(0, deleteCommentIndex)
+              .concat(dataObj.card.comments.slice(deleteCommentIndex + 1, dataObj.card.comments.length));
+            dataObj.card.listComments = dataObj.card.listComments.slice(0, deleteCommentIndex)
+              .concat(dataObj.card.listComments.slice(deleteCommentIndex + 1));
+            this._onDataSave(dataObj.card.id, dataObj.card.listComments);
+            this._rerenderChangeCards(dataObj.card.id);
+          });
+    }
+    return dataObj;
+  }
+
+  _onDataSave(cardId, comments) {
+    this._moviesModel.addMovieComments(cardId, comments);
   }
 
   hideCardList() {

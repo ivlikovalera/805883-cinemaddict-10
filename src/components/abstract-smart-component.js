@@ -16,7 +16,6 @@ export default class AbstractSmartComponent extends AbstractComponent {
     const newElement = this.getElement();
     newElement.style.animation = `none`;
     parentElement.replaceChild(newElement, oldElement);
-
     this.recoveryListeners();
   }
 }

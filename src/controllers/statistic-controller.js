@@ -2,7 +2,6 @@ import Chart from 'chart.js';
 import moment from 'moment';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import Statistic from './../components/statistic.js';
-import {getUserRating} from './../user-ranc.js';
 import {render} from './../utils/render.js';
 import {Position, TypeStats, FormatDataType} from './../utils/utils.js';
 
@@ -26,7 +25,7 @@ export default class StatisticController {
   }
 
   render() {
-    this._statistic = new Statistic(this._moviesModel.getStatistic(), getUserRating());
+    this._statistic = new Statistic(this._moviesModel.getStatistic(), this._moviesModel.getUserRating());
     render(this._container, this._statistic.getElement(), Position.BEFOREEND);
     this.init();
   }

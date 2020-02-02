@@ -1,4 +1,4 @@
-import {Position, StatusType, ViewModes} from './../utils/utils.js';
+import {Position, StatusType, ViewModes, ChangeType} from './../utils/utils.js';
 import {AUTHORIZATION, END_POINT} from './../utils/server.js';
 import {render, unrender} from './../utils/render.js';
 import MoviePopup from './../components/movie-popup.js';
@@ -18,12 +18,13 @@ export default class MovieController {
     this._detailsClickHandler = this._detailsClickHandler.bind(this);
     this._deleteCommentClickHandler = this._deleteCommentClickHandler.bind(this);
     this._addCommentSubmitHandler = this._addCommentSubmitHandler.bind(this);
+    this._ratingClickHandler = this._ratingClickHandler.bind(this);
     this._saveComments = this._saveComments.bind(this);
     this._viewMode = ViewModes.CARD;
     this._changeMode = this._changeMode.bind(this);
+    this.getId = this.getId.bind(this);
     this._api = new API(AUTHORIZATION, END_POINT);
   }
-
 
   _changeMode(mode) {
     this._viewMode = mode;
@@ -42,32 +43,56 @@ export default class MovieController {
         newData.isWatchlist = !newData.isWatchlist;
         break;
     }
-    this._onDataChange(this._data.id, newData)
+    const dataObj = {
+      id: this._data.id,
+      data: newData,
+    };
+    this._onDataChange(dataObj, ChangeType.CHANGEMOVIE)
       .then((responseData) => {
-        this._rerenderCard(responseData);
         if (this._viewMode === ViewModes.POPUP) {
-          this._popup.rerender();
+          this._popup.setStatus(responseData.isFavorites, responseData.isWatchlist, responseData.isWatched);
         }
       });
   }
 
-  _deleteCommentClickHandler(comments) {
-    this._data.comments = comments;
-    this._onDataChange(this._data.id, this._data);
-    this._popup.rerender();
-    this._rerenderCard(this._data);
+  _deleteCommentClickHandler(commentId) {
+    const dataObj = {
+      commentId,
+      card: this._data,
+    };
+
+    this._onDataChange(dataObj, ChangeType.DELETECOMMENT)
+    .then(() => this._popup.setComments(this._data.listComments));
   }
 
   _addCommentSubmitHandler(comment) {
-    this._data.comments.push(comment);
-    this._onDataChange(this._data.id, this._data);
-    this._popup.rerender();
-    this._rerenderCard(this._data);
+    const dataObj = {
+      id: this._data.id,
+      comment,
+    };
+    this._popup.setFetching(true);
+    this._onDataChange(dataObj, ChangeType.ADDCOMMENT)
+      .then(() => this._popup.setComments(this._data.listComments))
+      .catch(this._popup.setSendCommentError);
+  }
+
+  _ratingClickHandler(rating) {
+    const newData = this._data;
+    newData.personalRating = rating;
+
+    const dataObj = {
+      id: this._data.id,
+      data: newData,
+    };
+
+    this._onDataChange(dataObj, ChangeType.CHANGEMOVIE)
+    .then(() => this._popup.setRating(rating))
+    .catch(this._popup.setSendRatingError);
   }
 
   _saveComments(comments) {
-    this._data.comments = comments;
-    this._onDataSave(this._data.id, this._data);
+    this._comments = comments;
+    this._onDataSave(this._data.id, this._comments);
   }
 
   _renderPopup() {
@@ -80,15 +105,21 @@ export default class MovieController {
     this._popup.selectEmoji();
     this._popup.setDeleteCommentClickHandler(this._deleteCommentClickHandler);
     this._popup.setAddCommentSubmitHandler(this._addCommentSubmitHandler);
+    this._popup.setRatingClickHandler(this._ratingClickHandler);
+    this._popup.setUndoRatingHandler(() => this._ratingClickHandler(0));
   }
 
-  _rerenderCard(data) {
+  rerenderCard() {
     const oldCard = this._card.getElement();
     const parentElement = this._card.getElement().parentElement;
-    this._card = new MovieCard(data);
+    this._card = new MovieCard(this._data);
     parentElement.replaceChild(this._card.getElement(), oldCard);
     this._card.setMovieClickHandler(this._renderPopup);
     this._card.setDetailsClickHandler(this._detailsClickHandler);
+  }
+
+  getId() {
+    return this._data.id;
   }
 
   clear() {
@@ -101,7 +132,7 @@ export default class MovieController {
   render(movieData) {
     this._data = movieData;
     this._card = new MovieCard(movieData);
-
+    this._comments = this._data.commentsList;
     render(this._cardsContainer, this._card.getElement(), Position.BEFOREEND);
     this._card.setMovieClickHandler(() => {
       this._api.getPopupComments(this._data.id)
