@@ -106,6 +106,7 @@ export default class MovieController {
     this._popup.setDeleteCommentClickHandler(this._deleteCommentClickHandler);
     this._popup.setAddCommentSubmitHandler(this._addCommentSubmitHandler);
     this._popup.setRatingClickHandler(this._ratingClickHandler);
+    this._popup.setUndoRatingHandler(() => this._ratingClickHandler(0));
   }
 
   rerenderCard() {

@@ -49,6 +49,7 @@ export default class MoviePopup extends AbstractSmartComponent {
     this.setComments = this.setComments.bind(this);
     this.setRating = this.setRating.bind(this);
     this.setSendRatingError = this.setSendRatingError.bind(this);
+    this.setUndoRatingHandler = this.setUndoRatingHandler.bind(this);
   }
 
   setCloseHandler(changeMode) {
@@ -110,6 +111,7 @@ export default class MoviePopup extends AbstractSmartComponent {
     this.setDeleteCommentClickHandler(this._deleteCommentClickHandler);
     this.setAddCommentSubmitHandler(this._addCommentSubmitHandler);
     this.setRatingClickHandler(this._ratingClickHandler);
+    this.setUndoRatingHandler(this._undoRatingHandler);
     this.selectEmoji();
   }
 
@@ -168,8 +170,8 @@ export default class MoviePopup extends AbstractSmartComponent {
   }
 
   setUndoRatingHandler(handler) {
+    this._undoRatingHandler = handler;
     const resetRatingButton = this.getElement().querySelector(`.film-details__watched-reset`);
-
     if (resetRatingButton) {
       resetRatingButton.addEventListener(`click`, handler);
     }
