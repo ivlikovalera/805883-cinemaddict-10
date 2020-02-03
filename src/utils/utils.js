@@ -35,7 +35,6 @@ export const Position = {
 
 export const Key = {
   ESC_KEY: `Escape`,
-  CTRL_KEY: `Control`,
   ENTER_KEY: `Enter`,
 };
 

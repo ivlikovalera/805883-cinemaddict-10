@@ -85,7 +85,6 @@ export default class MoviePopup extends AbstractSmartComponent {
 
   setFetching(status) {
     this._isFetching = status;
-    this.rerender();
   }
 
   closePopupHandler() {
@@ -131,29 +130,19 @@ export default class MoviePopup extends AbstractSmartComponent {
   setAddCommentSubmitHandler(handler) {
     this._addCommentSubmitHandler = handler;
     const commentField = this.getElement().querySelector(`textarea`);
-    const ctrlKeyDownHandler = (evt) => {
-      if ((evt.key === Key.CTRL_KEY) && commentField.value) {
-        document.addEventListener(`keydown`, enterKeyDownHandler);
-      }
-    };
-
-    const enterKeyDownHandler = (evt) => {
-      if (evt.key === Key.ENTER_KEY) {
+    const keyDownHandler = (evt) => {
+      if ((evt.ctrlKey || evt.metaKey) && commentField.value && evt.key === Key.ENTER_KEY) {
         handler(dataToCommentData(commentField.value, this._selectedEmojiValue));
-        document.removeEventListener(`keydown`, enterKeyDownHandler);
-        commentField.value = ``;
+        this.getElement().querySelector(`textarea`).value = ``;
         this._sendCommentError = false;
         this._selectedEmoji = null;
         this._selectedEmojiValue = null;
+        document.removeEventListener(`keydown`, keyDownHandler);
       }
     };
 
-    document.addEventListener(`keydown`, ctrlKeyDownHandler);
-    document.addEventListener(`keyup`, (evt) => {
-      if (evt.key === Key.CTRL_KEY) {
-        document.removeEventListener(`keydown`, enterKeyDownHandler);
-      }
-    });
+    document.addEventListener(`keydown`, keyDownHandler);
+
   }
 
   setRatingClickHandler(handler) {
