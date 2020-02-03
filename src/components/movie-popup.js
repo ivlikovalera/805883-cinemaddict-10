@@ -52,21 +52,6 @@ export default class MoviePopup extends AbstractSmartComponent {
     this.setUndoRatingHandler = this.setUndoRatingHandler.bind(this);
   }
 
-  setCloseHandler(changeMode) {
-    this._changeMode = changeMode;
-    const closePopupButton = this.getElement().querySelector(`.film-details__close-btn`);
-    const closeHandler = (evt) => {
-      if (evt.type === `click` || (evt.type === `keydown` && evt.key === Key.ESC_KEY)) {
-        closePopupButton.removeEventListener(`click`, closeHandler);
-        document.removeEventListener(`keydown`, closeHandler);
-        this.closePopupHandler();
-        this._changeMode(ViewModes.CARD);
-      }
-    };
-
-    closePopupButton.addEventListener(`click`, closeHandler);
-    document.addEventListener(`keydown`, closeHandler);
-  }
 
   setRating(rating) {
     this._personalRating = rating;
@@ -86,10 +71,6 @@ export default class MoviePopup extends AbstractSmartComponent {
 
   setFetching(status) {
     this._isFetching = status;
-  }
-
-  closePopupHandler() {
-    unrender(this.getElement());
   }
 
   setStatus(favorite, watchlist, watched) {
@@ -113,74 +94,6 @@ export default class MoviePopup extends AbstractSmartComponent {
     this.setRatingClickHandler(this._ratingClickHandler);
     this.setUndoRatingHandler(this._undoRatingHandler);
     this.selectEmoji();
-  }
-
-  setDeleteCommentClickHandler(handler) {
-    this._deleteCommentClickHandler = handler;
-    this.getElement().querySelectorAll(`.film-details__comments-list`)
-      .forEach((commentElement) => {
-        const id = commentElement.dataset.id;
-        commentElement.querySelector(`.film-details__comment-delete`)
-          .addEventListener(`click`, (evt) => {
-            evt.preventDefault();
-            handler(id);
-          });
-      });
-  }
-
-  setAddCommentSubmitHandler(handler) {
-    this._addCommentSubmitHandler = handler;
-    const commentField = this.getElement().querySelector(`textarea`);
-    const keyDownHandler = (evt) => {
-      if ((evt.ctrlKey || evt.metaKey) && commentField.value && evt.key === Key.ENTER_KEY) {
-        handler(dataToCommentData(commentField.value, this._selectedEmojiValue));
-        this.getElement().querySelector(`textarea`).value = ``;
-        this._sendCommentError = false;
-        this._selectedEmoji = null;
-        this._selectedEmojiValue = null;
-        document.removeEventListener(`keydown`, keyDownHandler);
-      }
-    };
-
-    document.addEventListener(`keydown`, keyDownHandler);
-  }
-
-  setRatingClickHandler(handler) {
-    this._ratingClickHandler = handler;
-    this.getElement().querySelectorAll(`.film-details__user-rating-input`)
-      .forEach((button) => button.addEventListener(`click`, (evt) => {
-        const value = parseInt(evt.currentTarget.value, 10);
-        if (this._personalRating !== value) {
-          handler(value);
-        } else {
-          handler(0);
-        }
-      }));
-  }
-
-  setUndoRatingHandler(handler) {
-    this._undoRatingHandler = handler;
-    const resetRatingButton = this.getElement().querySelector(`.film-details__watched-reset`);
-    if (resetRatingButton) {
-      resetRatingButton.addEventListener(`click`, handler);
-    }
-  }
-
-  setDetailsClickHandler(handler) {
-    this._detailsClickHandler = handler;
-    this.getElement().querySelectorAll(`.film-details__control-label`).forEach((checkbox) => {
-      checkbox.addEventListener(`click`, (evt) => {
-        if (evt.currentTarget.classList.contains(`film-details__control-label--favorite`)) {
-          handler(StatusType.FAVORITE);
-        }
-        if (evt.currentTarget.classList.contains(`film-details__control-label--watched`)) {
-          handler(StatusType.WATCHED);
-        }
-        if (evt.currentTarget.classList.contains(`film-details__control-label--watchlist`)) {
-          handler(StatusType.WATCHLIST);
-        }
-      });
-    });
   }
 
   selectEmoji() {
@@ -403,5 +316,94 @@ export default class MoviePopup extends AbstractSmartComponent {
 
   _getSelectedEmojiTemplate() {
     return `<img src="${this._selectedEmoji}" width="55" height="55" alt="emoji">`;
+  }
+
+  setCloseHandler(changeMode) {
+    this._changeMode = changeMode;
+    const closePopupButton = this.getElement().querySelector(`.film-details__close-btn`);
+    const closeHandler = (evt) => {
+      if (evt.type === `click` || (evt.type === `keydown` && evt.key === Key.ESC_KEY)) {
+        closePopupButton.removeEventListener(`click`, closeHandler);
+        document.removeEventListener(`keydown`, closeHandler);
+        this.closePopupHandler();
+        this._changeMode(ViewModes.CARD);
+      }
+    };
+
+    closePopupButton.addEventListener(`click`, closeHandler);
+    document.addEventListener(`keydown`, closeHandler);
+  }
+
+
+  setDeleteCommentClickHandler(handler) {
+    this._deleteCommentClickHandler = handler;
+    this.getElement().querySelectorAll(`.film-details__comments-list`)
+      .forEach((commentElement) => {
+        const id = commentElement.dataset.id;
+        commentElement.querySelector(`.film-details__comment-delete`)
+          .addEventListener(`click`, (evt) => {
+            evt.preventDefault();
+            handler(id);
+          });
+      });
+  }
+
+  setAddCommentSubmitHandler(handler) {
+    this._addCommentSubmitHandler = handler;
+    const commentField = this.getElement().querySelector(`textarea`);
+    const keyDownHandler = (evt) => {
+      if ((evt.ctrlKey || evt.metaKey) && commentField.value && evt.key === Key.ENTER_KEY) {
+        handler(dataToCommentData(commentField.value, this._selectedEmojiValue));
+        this.getElement().querySelector(`textarea`).value = ``;
+        this._sendCommentError = false;
+        this._selectedEmoji = null;
+        this._selectedEmojiValue = null;
+        document.removeEventListener(`keydown`, keyDownHandler);
+      }
+    };
+
+    document.addEventListener(`keydown`, keyDownHandler);
+  }
+
+  setRatingClickHandler(handler) {
+    this._ratingClickHandler = handler;
+    this.getElement().querySelectorAll(`.film-details__user-rating-input`)
+      .forEach((button) => button.addEventListener(`click`, (evt) => {
+        const value = parseInt(evt.currentTarget.value, 10);
+        if (this._personalRating !== value) {
+          handler(value);
+        } else {
+          handler(0);
+        }
+      }));
+  }
+
+  setUndoRatingHandler(handler) {
+    this._undoRatingHandler = handler;
+    const resetRatingButton = this.getElement().querySelector(`.film-details__watched-reset`);
+    if (resetRatingButton) {
+      resetRatingButton.addEventListener(`click`, handler);
+    }
+  }
+
+  setDetailsClickHandler(handler) {
+    this._detailsClickHandler = handler;
+    this.getElement().querySelectorAll(`.film-details__control-label`).forEach((checkbox) => {
+      checkbox.addEventListener(`click`, (evt) => {
+        if (evt.currentTarget.classList.contains(`film-details__control-label--favorite`)) {
+          handler(StatusType.FAVORITE);
+        }
+        if (evt.currentTarget.classList.contains(`film-details__control-label--watched`)) {
+          handler(StatusType.WATCHED);
+        }
+        if (evt.currentTarget.classList.contains(`film-details__control-label--watchlist`)) {
+          handler(StatusType.WATCHLIST);
+        }
+      });
+    });
+  }
+
+  closePopupHandler() {
+    unrender(this.getElement());
   }
 }
