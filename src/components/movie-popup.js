@@ -55,16 +55,17 @@ export default class MoviePopup extends AbstractSmartComponent {
   setCloseHandler(changeMode) {
     this._changeMode = changeMode;
     const closePopupButton = this.getElement().querySelector(`.film-details__close-btn`);
-    closePopupButton.addEventListener(`click`, () => {
-      this.closePopupHandler();
-      this._changeMode(ViewModes.CARD);
-    });
-    document.addEventListener(`keydown`, (evt) => {
-      if (evt.key === Key.ESC_KEY) {
+    const closeHandler = (evt) => {
+      if (evt.type === `click` || (evt.type === `keydown` && evt.key === Key.ESC_KEY)) {
+        closePopupButton.removeEventListener(`click`, closeHandler);
+        document.removeEventListener(`keydown`, closeHandler);
         this.closePopupHandler();
         this._changeMode(ViewModes.CARD);
       }
-    });
+    };
+
+    closePopupButton.addEventListener(`click`, closeHandler);
+    document.addEventListener(`keydown`, closeHandler);
   }
 
   setRating(rating) {
@@ -142,7 +143,6 @@ export default class MoviePopup extends AbstractSmartComponent {
     };
 
     document.addEventListener(`keydown`, keyDownHandler);
-
   }
 
   setRatingClickHandler(handler) {
